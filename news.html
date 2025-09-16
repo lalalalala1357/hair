@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>最新消息 - 可莉兒 Hair Salon</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f9fff9; color:#333; margin:0; padding:0; }
+  header { background:#a8e6cf; padding:20px; }
+  header h2 { margin:0; color:#4a7c53; }
+  nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; }
+  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
+  nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
+
+  #banner { background:#ffe08a; padding:10px; text-align:center; font-weight:bold; }
+  #banner button { margin-left:12px; background:#4a7c53; color:#fff; border:none; padding:4px 8px; cursor:pointer; border-radius:4px; }
+
+  main { max-width:700px; margin:40px auto; padding:0 20px; }
+  h1 { color:#4a7c53; margin-bottom:20px; text-align:center; }
+  
+  article { background:#fff; border-radius:8px; padding:20px; margin-bottom:20px; box-shadow:0 1px 5px rgba(0,0,0,0.1); }
+  article h3 { margin:0 0 8px; color:#3a6f45; }
+  article time { display:block; font-size:0.85rem; color:#777; margin-bottom:10px; }
+  article p { font-size:1rem; line-height:1.6; color:#444; }
+
+  footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
+  footer a,
+  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a:hover { color:#4a7c53; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>可莉兒 Hair Salon</h2>
+  <nav>
+    <ul>
+      <li><a href="index.html">首頁</a></li>
+      <li><a href="about.html">關於我們</a></li>
+      <li><a href="services.html">服務項目</a></li>
+      <li><a href="pricing.html">價目表</a></li>
+      <li><a href="booking.html">預約</a></li>
+      <li><a href="news.html" class="active">最新消息</a></li>
+      <li><a href="contact.html">聯絡我們</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- 公告橫幅 -->
+<div id="banner">
+  🚨 公告：9/28(日)～9/29(一) 全店公休  
+  <button onclick="this.parentElement.remove()">關閉</button>
+</div>
+
+<main>
+  <h1>最新消息</h1>
+  
+  <article>
+    <h3>春季限時優惠 - 8折剪髮體驗</h3>
+    <time datetime="2025-09-01">發布日期：2025/09/01</time>
+    <p>2025年9月1日至9月30日，凡預約剪髮服務，享有八折優惠，歡迎新舊顧客把握機會！</p>
+  </article>
+
+  <article>
+    <h3>中秋節特別活動</h3>
+    <time datetime="2025-09-15">發布日期：2025/09/15</time>
+    <p>9月中秋節期間，來店染髮即贈送護髮組合一份，數量有限，送完為止。</p>
+  </article>
+
+  <article>
+    <h3>開幕週年慶</h3>
+    <time datetime="2025-10-01">發布日期：2025/10/01</time>
+    <p>感謝大家支持，可莉兒 Hair Salon 將於10月舉辦周年慶活動，屆時有更多驚喜優惠，敬請期待！</p>
+  </article>
+</main>
+
+<footer>
+  © 2025 可莉兒 Hair Salon <br>
+  地址：514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
+  電話：<a href="tel:0988528051">0988-528-051</a><br>
+  營業時間：週一至週日 11:00–20:00<br>
+  <a href="https://www.facebook.com/" target="_blank">Facebook</a> ｜ 
+  <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>聯絡我們 - 可莉兒 Hair Salon</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#f9fff9; color:#333; margin:0; padding:0; }
+  header { background:#a8e6cf; padding:20px; }
+  header h2 { margin:0; color:#4a7c53; }
+  nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; }
+  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
+  nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
+
+  main { max-width:800px; margin:40px auto; padding:0 20px; }
+  h1, h2 { color:#4a7c53; margin-bottom:20px; }
+
+  .contact-info { background:#d0f0d6; padding:20px; border-radius:8px; margin-bottom:30px; font-size:1.05rem; color:#2e5530; }
+  .contact-info a { color:#2e5530; text-decoration:none; font-weight:bold; }
+
+  iframe { width:100%; height:320px; border:0; border-radius:8px; margin-bottom:30px; }
+
+  form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  label { display:block; margin-bottom:8px; font-weight:bold; color:#4a7c53; }
+  input, textarea {
+    width:100%; padding:10px; margin-bottom:20px;
+    border:1px solid #ccc; border-radius:6px; font-size:1rem; resize:vertical;
+  }
+  button {
+    background-color:#7bd8a2; border:none; color:white; padding:12px 20px;
+    border-radius:6px; font-size:1.1rem; cursor:pointer; transition:background-color .3s;
+  }
+  button:hover { background-color:#5bb174; }
+
+  footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:.9rem; }
+  footer a,
+  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a:hover { color:#4a7c53; }
+</style>
+</head>
+<body>
+
+<header>
+  <h2>可莉兒 Hair Salon</h2>
+  <nav>
+    <ul>
+      <li><a href="index.html">首頁</a></li>
+      <li><a href="about.html">關於我們</a></li>
+      <li><a href="services.html">服務項目</a></li>
+      <li><a href="pricing.html">價目表</a></li>
+      <li><a href="booking.html">預約</a></li>
+      <li><a href="news.html">最新消息</a></li>
+      <li><a href="contact.html" class="active">聯絡我們</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>聯絡我們</h1>
+
+  <div class="contact-info">
+    <p>📍 地址：<a href="https://maps.google.com/?q=514彰化縣溪湖鎮二溪路一段329巷30號" target="_blank">514 彰化縣溪湖鎮二溪路一段329巷30號</a></p>
+    <p>📞 電話：<a href="tel:0988528051">0988-528-051</a></p>
+    <p>📧 電子郵件：<a href="mailto:contact@kelierhair.com">contact@kelierhair.com</a></p>
+  </div>
+
+  <!-- Google Maps -->
+  <iframe src="https://www.google.com/maps?q=514彰化縣溪湖鎮二溪路一段329巷30號&output=embed" allowfullscreen="" loading="lazy"></iframe>
+
+  <!-- 聯絡表單 -->
+  <h2>留言給我們</h2>
+  <form id="contact-form">
+    <label for="contact-name">姓名</label>
+    <input type="text" id="contact-name" name="name" placeholder="請輸入您的姓名" required />
+    
+    <label for="contact-email">電子郵件</label>
+    <input type="email" id="contact-email" name="email" placeholder="請輸入電子郵件" required />
+    
+    <label for="contact-message">留言內容</label>
+    <textarea id="contact-message" name="message" rows="5" placeholder="請輸入留言" required></textarea>
+    
+    <button type="submit">送出留言</button>
+  </form>
+</main>
+
+<footer>
+  © 2025 可莉兒 Hair Salon <br>
+  地址：514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
+  電話：<a href="tel:0988528051">0988-528-051</a><br>
+  營業時間：週一至週日 11:00–20:00<br>
+  <a href="https://www.facebook.com/" target="_blank">Facebook</a> ｜ 
+  <a href="https://www.instagram.com/" target="_blank">Instagram</a>
+</footer>
+
+<script>
+  const contactForm = document.getElementById('contact-form');
+  contactForm.addEventListener('submit', e => {
+    e.preventDefault();
+    alert('✅ 謝謝您的留言，我們會盡快與您聯絡！');
+    contactForm.reset();
+  });
+</script>
+
+</body>
+</html>
