@@ -169,8 +169,25 @@
 
 <script>
   const bookingForm = document.getElementById('booking-form');
+  const STORAGE_KEY = 'salon_calendar_appointments_v3';
+
   bookingForm.addEventListener('submit', e => {
     e.preventDefault();
+
+    const service = document.getElementById('service').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+
+    // 讀取原本預約資料
+    let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (!appointments[date]) appointments[date] = [];
+    appointments[date].push({
+      name, phone, service, time, createdAt: new Date().toISOString()
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appointments));
+
     alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
     bookingForm.reset();
   });
