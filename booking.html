@@ -5,22 +5,101 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>預約 - 可莉兒 Hair Salon</title>
 <style>
-  body { font-family: Arial, sans-serif; background:#f9fff9; color:#333; margin:0; padding:0; }
-  header { position: fixed; top:0; left:0; width:100%; background:#a8e6cf; padding:20px; z-index:1000; }
-  header h2 { margin:0; color:#4a7c53; }
-  nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0 0; margin:0; }
-  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
-  nav a:hover, nav a.active { background:#7bd8a2; color:white; }
-  main { max-width:600px; margin:0 auto; padding:100px 20px 40px; }
-  h1 { color:#4a7c53; margin-bottom:20px; }
-  form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-  label { display:block; margin-bottom:8px; font-weight:bold; color:#4a7c53; }
-  select, input { width:100%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:6px; font-size:1rem; }
-  button { background:#7bd8a2; border:none; color:white; padding:12px 20px; border-radius:6px; font-size:1.1rem; cursor:pointer; transition:background-color 0.3s ease; }
-  button:hover { background:#5bb174; }
-  footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
-  footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
-  footer a:hover { color:#4a7c53; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f9fff9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background-color: #a8e6cf;
+    padding: 20px;
+    z-index: 1000;
+  }
+  header h2 {
+    margin: 0;
+    color: #4a7c53;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    padding: 10px 0 0 0;
+    margin: 0;
+  }
+  nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+  nav a:hover,
+  nav a.active {
+    background-color: #7bd8a2;
+    color: white;
+  }
+  main {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 100px 20px 40px; /* 上方 100px，避免 header 遮住內容 */
+  }
+  h1 {
+    color: #4a7c53;
+    margin-bottom: 20px;
+  }
+  form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4a7c53;
+  }
+  select, input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  button {
+    background-color: #7bd8a2;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #5bb174;
+  }
+  footer {
+    margin-top: 60px;
+    background: #a8e6cf;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  footer a,
+  footer a:visited {
+    color: #333;
+    text-decoration: none;
+    margin: 0 8px;
+  }
+  footer a:hover {
+    color: #4a7c53;
+  }
 </style>
 </head>
 <body>
@@ -89,34 +168,29 @@
 </footer>
 
 <script>
-const bookingForm = document.getElementById('booking-form');
+  const bookingForm = document.getElementById('booking-form');
+  const STORAGE_KEY = 'salon_calendar_appointments_v3';
 
-bookingForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const service = document.getElementById('service').value;
-  const date = document.getElementById('date').value;
-  const time = document.getElementById('time').value;
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
+  bookingForm.addEventListener('submit', e => {
+    e.preventDefault();
 
-  try {
-    const res = await fetch('/.netlify/functions/add-appointment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ day: date, name, phone, service, time })
+    const service = document.getElementById('service').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+
+    // 讀取原本預約資料
+    let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (!appointments[date]) appointments[date] = [];
+    appointments[date].push({
+      name, phone, service, time, createdAt: new Date().toISOString()
     });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appointments));
 
-    if (res.ok) {
-      alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
-      bookingForm.reset();
-    } else {
-      alert('❌ 預約失敗，請稍後再試。');
-    }
-  } catch (err) {
-    console.error(err);
-    alert('❌ 發生錯誤，請稍後再試。');
-  }
-});
+    alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
+    bookingForm.reset();
+  });
 </script>
 
 </body>
