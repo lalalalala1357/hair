@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP 管理 - 可莉兒 Hair Salon</title>
+<style>
+body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0;}
+header { background:#a8e6cf; padding:20px; color:#4a7c53; text-align:center; font-weight:bold;}
+nav ul { list-style:none; display:flex; gap:15px; justify-content:center; margin:15px 0 0 0; padding:0;}
+nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px;}
+nav a:hover, nav a.active { background:#7bd8a2; color:#fff;}
+main { max-width:600px; margin:20px auto; padding:0 20px;}
+h1,h2 { color:#4a7c53; margin-bottom:10px;}
+input { width:70%; padding:8px; margin-bottom:10px; border-radius:4px; border:1px solid #ccc;}
+button { padding:8px 12px; border:none; border-radius:4px; background:#7bd8a2; color:#fff; cursor:pointer; margin-left:5px;}
+button:hover { background:#5bb174;}
+ul { padding-left:0;}
+li { list-style:none; margin-bottom:5px;}
+</style>
+</head>
+<body>
+
+<header>
+  可莉兒 Hair Salon - VIP 管理
+  <nav>
+    <ul>
+      <li><a href="vip.html" class="active">VIP 管理</a></li>
+      <li><a href="admin-calendar.html">行事曆管理</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>VIP 名單</h1>
+
+  <!-- 搜尋 -->
+  <input type="text" id="searchVip" placeholder="搜尋電話或姓名">
+  <button id="searchBtn">搜尋</button>
+  <button id="showAllBtn">顯示全部</button>
+
+  <br>
+
+  <!-- 新增 VIP -->
+  <input type="text" id="vipName" placeholder="輸入姓名">
+  <input type="text" id="vipPhone" placeholder="輸入電話號碼">
+  <button id="addVipBtn">新增 VIP</button>
+
+  <!-- VIP 列表 -->
+  <div id="vipContainer"></div>
+</main>
+
+<script>
+const STORAGE_KEY_VIP = 'salon_vip_list';
+let vipList = JSON.parse(localStorage.getItem(STORAGE_KEY_VIP)||'[]');
+
+// 渲染 VIP 名單
+function renderVIP(list = vipList){
+  const container = document.getElementById('vipContainer');
+  container.innerHTML = '';
+  if(list.length > 0){
+    const title = document.createElement('h2');
+    title.textContent = '會員名單';
+    container.appendChild(title);
+
+    const ul = document.createElement('ul');
+    list.forEach((vip,i)=>{
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${vip.name} (${vip.phone}) - $${vip.balance} 
+        <button onclick="addBalance(${i})">儲值</button>
+        <button onclick="deductBalance(${i})">扣款</button>
+        <button onclick="removeVIP(${i})">刪除</button>`;
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  }
+}
+
+// 新增 VIP
+function addVIP(){
+  const name = document.getElementById('vipName').value.trim();
+  const phone = document.getElementById('vipPhone').value.trim();
+  if(!name || !phone){
+    alert('姓名與電話都要輸入');
+    return;
+  }
+  if(vipList.some(v=>v.phone===phone)){
+    alert('此會員電話已存在');
+    return;
+  }
+  vipList.push({name, phone, balance:0});
+  localStorage.setItem(STORAGE_KEY_VIP, JSON.stringify(vipList));
+  renderVIP();
+  document.getElementById('vipName').value='';
+  document.getElementById('vipPhone').value='';
+}
+
+// 刪除 VIP
+function removeVIP(index){
+  if(confirm('確定刪除此會員?')){
+    vipList.splice(index,1);
+    localStorage.setItem(STORAGE_KEY_VIP, JSON.stringify(vipList));
+    renderVIP();
+  }
+}
+
+// 儲值
+function addBalance(index){
+  const amount = parseFloat(prompt('輸入儲值金額'));
+  if(!isNaN(amount) && amount>0){
+    vipList[index].balance += amount;
+    localStorage.setItem(STORAGE_KEY_VIP, JSON.stringify(vipList));
+    renderVIP();
+  }
+}
+
+// 扣款
+function deductBalance(index){
+  const amount = parseFloat(prompt('輸入扣款金額'));
+  if(!isNaN(amount) && amount>0){
+    if(vipList[index].balance < amount){
+      alert('餘額不足');
+      return;
+    }
+    vipList[index].balance -= amount;
+    localStorage.setItem(STORAGE_KEY_VIP, JSON.stringify(vipList));
+    renderVIP();
+  }
+}
+
+// 搜尋 VIP
+function searchVIP(){
+  const keyword = document.getElementById('searchVip').value.trim();
+  if(!keyword) return;
+
+  const filtered = vipList.filter(v=>v.phone.includes(keyword) || v.name.includes(keyword));
+  if(filtered.length===0){
+    alert('找不到會員');
+    return;
+  }
+
+  renderVIP(filtered);
+}
+
+// 綁定事件
+document.getElementById('addVipBtn').addEventListener('click', addVIP);
+document.getElementById('searchBtn').addEventListener('click', searchVIP);
+document.getElementById('showAllBtn').addEventListener('click', ()=>renderVIP());
+
+// 初始渲染
+renderVIP();
+</script>
+
+</body>
+</html>

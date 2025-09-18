@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行事曆管理 - 可莉兒 Hair Salon</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f9fff9; margin:0; padding:0; }
+header { background:#a8e6cf; padding:20px; text-align:center; color:#4a7c53; font-weight:bold; }
+nav ul { list-style:none; display:flex; gap:15px; justify-content:center; margin:15px 0 0 0; padding:0; }
+nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
+nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
+#controls { text-align:center; margin:20px 0; }
+#calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; max-width:700px; margin:0 auto; }
+.week-cell, .calendar-cell { padding:10px; border:1px solid #ccc; text-align:center; }
+.week-cell { background:#e0f2e9; font-weight:bold; }
+.calendar-cell { background:#fff; cursor:pointer; position:relative; }
+.calendar-cell:hover { background:#7bd8a2; color:#fff; }
+.label { position:absolute; top:4px; right:4px; background:#ff5c5c; color:#fff; font-size:0.7rem; padding:2px 4px; border-radius:3px; }
+button { margin:0 5px; padding:6px 12px; background:#7bd8a2; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+button:hover { background:#5bb174; }
+</style>
+</head>
+<body>
+
+<header>
+可莉兒 Hair Salon - 行事曆管理
+<nav>
+<ul>
+<li><a href="vip.html">VIP 管理</a></li>
+<li><a href="admin-calendar.html" class="active">行事曆管理</a></li>
+</ul>
+</nav>
+</header>
+
+<div id="controls">
+<button id="prevMonth">上個月</button>
+<span id="monthLabel" style="font-weight:bold; margin:0 15px;"></span>
+<button id="nextMonth">下個月</button>
+<button id="exportBtn">匯出 JSON</button>
+<button id="importBtn">匯入 JSON</button>
+<button id="refreshBtn">重新整理</button>
+</div>
+
+<div id="calendar"></div>
+<input type="file" id="importFile" style="display:none" accept=".json">
+
+<script>
+const STORAGE_KEY_CAL = 'salon_calendar_appointments_v3';
+const STORAGE_KEY_VIP = 'salon_vip_list';
+const STORAGE_KEY_AUTH = 'calendar_authenticated';
+
+let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY_CAL)||'{}');
+let vipList = JSON.parse(localStorage.getItem(STORAGE_KEY_VIP)||'[]');
+
+let today = new Date();
+let currentYear = today.getFullYear();
+let currentMonth = today.getMonth();
+const weekDays = ['日','一','二','三','四','五','六'];
+
+function buildCalendar(year, month){
+  const calendar = document.getElementById('calendar');
+  calendar.innerHTML='';
+  document.getElementById('monthLabel').textContent=`${year} 年 ${month+1} 月`;
+
+  // 先建立星期標題
+  weekDays.forEach(d=>{
+    const cell=document.createElement('div');
+    cell.classList.add('week-cell');
+    cell.textContent=d;
+    calendar.appendChild(cell);
+  });
+
+  const firstDay=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0);
+  const startWeek=firstDay.getDay();
+  const totalDays=lastDay.getDate();
+
+  // 空白格補齊
+  for(let i=0;i<startWeek;i++){
+    const cell=document.createElement('div');
+    cell.classList.add('calendar-cell');
+    cell.style.background='#f0f0f0';
+    calendar.appendChild(cell);
+  }
+
+  // 每天格子
+  for(let d=1; d<=totalDays; d++){
+    const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cell=document.createElement('div');
+    cell.classList.add('calendar-cell');
+    cell.textContent=d;
+
+    // 顯示預約數量與 VIP 標記
+    if(appointments[dayStr] && appointments[dayStr].length>0){
+      const label = document.createElement('div');
+      label.classList.add('label');
+      let count = appointments[dayStr].length;
+      const hasVIP = appointments[dayStr].some(a => vipList.some(v => v.phone === a.phone));
+      label.textContent = hasVIP ? `★${count}` : `${count}`;
+      cell.appendChild(label);
+    }
+
+    cell.addEventListener('click', ()=>manageDay(dayStr));
+    calendar.appendChild(cell);
+  }
+}
+
+// 點選每天管理預約
+function manageDay(dayStr){
+  const dayAppointments = appointments[dayStr] || [];
+  let msg = `📅 ${dayStr} 的預約:\n\n`;
+  dayAppointments.forEach((a,i)=>{
+    let star = vipList.some(v => v.phone === a.phone) ? ' ★VIP' : '';
+    msg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})${star}\n 服務: ${a.service}\n`;
+  });
+  msg+='\n輸入:\n1 = 新增預約\n2 = 刪除預約\n取消 = 離開';
+  const action = prompt(msg);
+  if(action==='1'){
+    const name=prompt('姓名:'); if(!name) return;
+    const phone=prompt('電話:'); if(!phone) return;
+    const service=prompt('服務項目:'); if(!service) return;
+    const time=prompt('時間 (例如 10:00):'); if(!time) return;
+    if(!appointments[dayStr]) appointments[dayStr]=[];
+    appointments[dayStr].push({name, phone, service, time});
+    localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
+    buildCalendar(currentYear,currentMonth);
+  } else if(action==='2'){
+    if(dayAppointments.length===0){ alert('無預約可刪'); return; }
+    let delMsg='輸入要刪除的編號:\n';
+    dayAppointments.forEach((a,i)=>{
+      delMsg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})\n`;
+    });
+    const delIndex=parseInt(prompt(delMsg))-1;
+    if(!isNaN(delIndex) && dayAppointments[delIndex]){
+      dayAppointments.splice(delIndex,1);
+      if(dayAppointments.length===0) delete appointments[dayStr];
+      localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
+      buildCalendar(currentYear,currentMonth);
+    }
+  }
+}
+
+// 月份切換
+document.getElementById('prevMonth').addEventListener('click', ()=>{
+  currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
+  buildCalendar(currentYear,currentMonth);
+});
+document.getElementById('nextMonth').addEventListener('click', ()=>{
+  currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; }
+  buildCalendar(currentYear,currentMonth);
+});
+
+// 匯出 / 匯入 / 重新整理
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const dataStr = "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appointments,null,2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download","appointments.json");
+  dlAnchor.click();
+});
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      appointments = JSON.parse(evt.target.result);
+      localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
+      buildCalendar(currentYear,currentMonth);
+      alert('匯入成功！');
+    }catch(err){ alert('檔案格式錯誤'); }
+  }
+  reader.readAsText(file);
+});
+document.getElementById('refreshBtn').addEventListener('click', ()=>{
+  appointments = JSON.parse(localStorage.getItem(STORAGE_KEY_CAL)||'{}');
+  vipList = JSON.parse(localStorage.getItem(STORAGE_KEY_VIP)||'[]');
+  buildCalendar(currentYear,currentMonth);
+});
+
+// 密碼驗證
+if(!localStorage.getItem(STORAGE_KEY_AUTH)){
+  const password = prompt('請輸入管理密碼');
+  if(password==='salon2025'){
+    localStorage.setItem(STORAGE_KEY_AUTH,'true');
+    buildCalendar(currentYear,currentMonth);
+  } else {
+    alert('密碼錯誤！');
+    document.body.innerHTML='<h2 style="text-align:center;margin-top:100px;">密碼錯誤，無法進入行事曆</h2>';
+  }
+} else {
+  buildCalendar(currentYear,currentMonth);
+}
+</script>
+
+</body>
+</html>
