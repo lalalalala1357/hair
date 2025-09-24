@@ -2,35 +2,38 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>行事曆管理 - 可莉兒 Hair Salon</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f9fff9; margin:0; padding:0; }
-header { background:#a8e6cf; padding:20px; text-align:center; color:#4a7c53; font-weight:bold; }
-nav ul { list-style:none; display:flex; gap:15px; justify-content:center; margin:15px 0 0 0; padding:0; }
-nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
-nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
-#controls { text-align:center; margin:20px 0; }
-#calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; max-width:700px; margin:0 auto; }
-.week-cell, .calendar-cell { padding:10px; border:1px solid #ccc; text-align:center; }
-.week-cell { background:#e0f2e9; font-weight:bold; }
-.calendar-cell { background:#fff; cursor:pointer; position:relative; }
-.calendar-cell:hover { background:#7bd8a2; color:#fff; }
-.label { position:absolute; top:4px; right:4px; background:#ff5c5c; color:#fff; font-size:0.7rem; padding:2px 4px; border-radius:3px; }
-button { margin:0 5px; padding:6px 12px; background:#7bd8a2; border:none; color:#fff; border-radius:4px; cursor:pointer; }
-button:hover { background:#5bb174; }
+  :root{--bg:#f7fff7;--accent:#a8e6cf;--muted:#666}
+  body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0}
+  header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+  header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
+  nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;}
+  nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
+  nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+
+  #controls { text-align:center; margin:20px 0; }
+  #calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; max-width:700px; margin:0 auto; }
+  .week-cell, .calendar-cell { padding:10px; border:1px solid #ccc; text-align:center; }
+  .week-cell { background:#e0f2e9; font-weight:bold; }
+  .calendar-cell { background:#fff; cursor:pointer; position:relative; }
+  .calendar-cell:hover { background:#7bd8a2; color:#fff; }
+  .label { position:absolute; top:4px; right:4px; background:#ff5c5c; color:#fff; font-size:0.7rem; padding:2px 4px; border-radius:3px; }
+  button { margin:0 5px; padding:6px 12px; background:#7bd8a2; border:none; color:#fff; border-radius:4px; cursor:pointer; }
+  button:hover { background:#5bb174; }
 </style>
 </head>
 <body>
 
 <header>
-可莉兒 Hair Salon - 行事曆管理
-<nav>
-<ul>
-<li><a href="vip.html">VIP 管理</a></li>
-<li><a href="admin-calendar.html" class="active">行事曆管理</a></li>
-</ul>
-</nav>
+  <h1>可莉兒 Hair Salon</h1>
+  <nav>
+    <ul>
+      <li><a href="vip_test.html">VIP 管理</a></li>
+      <li><a href="admin-calendar.html" class="active">行事曆管理</a></li>
+    </ul>
+  </nav>
 </header>
 
 <div id="controls">
@@ -47,7 +50,7 @@ button:hover { background:#5bb174; }
 
 <script>
 const STORAGE_KEY_CAL = 'salon_calendar_appointments_v3';
-const STORAGE_KEY_VIP = 'salon_vip_list';
+const STORAGE_KEY_VIP = 'vip_members';
 const STORAGE_KEY_AUTH = 'calendar_authenticated';
 
 let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY_CAL)||'{}');
@@ -63,7 +66,6 @@ function buildCalendar(year, month){
   calendar.innerHTML='';
   document.getElementById('monthLabel').textContent=`${year} 年 ${month+1} 月`;
 
-  // 先建立星期標題
   weekDays.forEach(d=>{
     const cell=document.createElement('div');
     cell.classList.add('week-cell');
@@ -76,7 +78,6 @@ function buildCalendar(year, month){
   const startWeek=firstDay.getDay();
   const totalDays=lastDay.getDate();
 
-  // 空白格補齊
   for(let i=0;i<startWeek;i++){
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
@@ -84,14 +85,12 @@ function buildCalendar(year, month){
     calendar.appendChild(cell);
   }
 
-  // 每天格子
   for(let d=1; d<=totalDays; d++){
     const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
     cell.textContent=d;
 
-    // 顯示預約數量與 VIP 標記
     if(appointments[dayStr] && appointments[dayStr].length>0){
       const label = document.createElement('div');
       label.classList.add('label');
@@ -106,7 +105,6 @@ function buildCalendar(year, month){
   }
 }
 
-// 點選每天管理預約
 function manageDay(dayStr){
   const dayAppointments = appointments[dayStr] || [];
   let msg = `📅 ${dayStr} 的預約:\n\n`;
@@ -141,7 +139,6 @@ function manageDay(dayStr){
   }
 }
 
-// 月份切換
 document.getElementById('prevMonth').addEventListener('click', ()=>{
   currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
   buildCalendar(currentYear,currentMonth);
@@ -151,7 +148,6 @@ document.getElementById('nextMonth').addEventListener('click', ()=>{
   buildCalendar(currentYear,currentMonth);
 });
 
-// 匯出 / 匯入 / 重新整理
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   const dataStr = "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appointments,null,2));
   const dlAnchor = document.createElement('a');
@@ -182,7 +178,6 @@ document.getElementById('refreshBtn').addEventListener('click', ()=>{
   buildCalendar(currentYear,currentMonth);
 });
 
-// 密碼驗證
 if(!localStorage.getItem(STORAGE_KEY_AUTH)){
   const password = prompt('請輸入管理密碼');
   if(password==='salon2025'){
@@ -198,4 +193,4 @@ if(!localStorage.getItem(STORAGE_KEY_AUTH)){
 </script>
 
 </body>
-</html
+</html>
