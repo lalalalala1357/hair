@@ -113,7 +113,6 @@ td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 <script>
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzlq9zL8TXqbsstCgarJ6lEmqXkO-DEbXhGyDnmBVqNsDANY0fq7Xsbqoog2a_l3Ssj/exec";
 
-
 const loginCard = document.getElementById('loginCard')
 const mainUI = document.getElementById('mainUI')
 const btnLogin = document.getElementById('btnLogin')
@@ -175,7 +174,14 @@ async function initLocalData(){
     const data = await res.json()
     lastMembers = data.members || []
     lastTrans = data.transactions || []
-    notesBox.value = ''
+
+    // 刷新後自動選中最後編輯會員
+    const lastPhone = localStorage.getItem('lastSelectedPhone')
+    if(lastPhone){
+      const idx = lastMembers.findIndex(m=>m.phone===lastPhone)
+      if(idx>=0) populateFormForEdit(lastPhone)
+    }
+
     renderMemberList(lastMembers)
     renderTransList(lastTrans)
   } catch(err){console.error(err); alert('讀取會員資料失敗')}
@@ -201,7 +207,7 @@ async function saveTrans(){
   } catch(err){console.error(err); showToast('儲存交易失敗')}
 }
 
-// 以下功能保持原本邏輯，fetch 都統一使用 WEBAPP_URL
+// 新增會員
 btnAdd.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
   const name = nameInput.value.trim()
@@ -219,7 +225,12 @@ btnAdd.addEventListener('click', async ()=>{
 })
 
 btnClear.addEventListener('click', clearForm)
-function clearForm(){ phoneInput.value=''; nameInput.value=''; balanceInput.value=''; btnUpdate.classList.add('hidden'); btnAdd.classList.remove('hidden') }
+function clearForm(){
+  phoneInput.value=''; nameInput.value=''; balanceInput.value='';
+  btnUpdate.classList.add('hidden'); btnAdd.classList.remove('hidden')
+  notesBox.value=''
+  localStorage.removeItem('lastSelectedPhone')
+}
 
 btnSearch.addEventListener('click', ()=>{
   const p = searchPhone.value.trim()
@@ -299,6 +310,7 @@ function renderMemberList(list){
       await saveMembers(); await saveTrans()
       renderMemberList(lastMembers)
       renderTransList(lastTrans)
+      localStorage.removeItem('lastSelectedPhone')
     }
   }))
 }
@@ -312,6 +324,9 @@ function populateFormForEdit(phone){
   balanceInput.value = m.balance
   notesBox.value = m.note || ''
   btnUpdate.classList.remove('hidden'); btnAdd.classList.add('hidden')
+
+  // 記住選中的會員
+  localStorage.setItem('lastSelectedPhone', phone)
 }
 
 function renderTransList(list){
