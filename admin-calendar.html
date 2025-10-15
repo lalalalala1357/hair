@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>行事曆管理 - 可莉兒 Hair Salon</title>
 <style>
   :root{
@@ -48,7 +48,6 @@
     background:#7bd8a2;
     color:#fff;
   }
-
   #controls { 
     text-align:center; 
     margin:20px 0; 
@@ -76,7 +75,7 @@
   }
   .calendar-cell:hover { 
     background:#7bd8a2; 
-    color:#000; /* 改成黑色，避免白字看不到 */
+    color:#000; 
   }
   .label { 
     position:absolute; 
@@ -99,6 +98,12 @@
   }
   button:hover { 
     background:#5bb174; 
+  }
+  #error-msg {
+    text-align:center;
+    color:red;
+    font-weight:bold;
+    margin-top:20px;
   }
 </style>
 <!-- Firebase SDK -->
@@ -125,8 +130,11 @@
 </div>
 
 <div id="calendar"></div>
+<div id="error-msg"></div>
 
 <script>
+  const errorMsg = document.getElementById('error-msg');
+
   // ---------------- Firebase 初始化 ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
@@ -146,32 +154,43 @@
 
   // ---------------- 載入會員資料 ----------------
   async function loadMembers(){
-    const snapshot = await db.collection('members').get();
-    members = {};
-    snapshot.forEach(doc=>{
-      const data = doc.data();
-      members[data.phone] = data;
-    });
+    try{
+      const snapshot = await db.collection('members').get();
+      members = {};
+      snapshot.forEach(doc=>{
+        const data = doc.data();
+        members[data.phone] = data;
+      });
+      console.log("會員載入成功", Object.keys(members).length);
+    } catch(e){
+      console.error("讀取會員資料失敗", e);
+      errorMsg.textContent = "⚠️ 讀取會員資料失敗，請檢查 Firestore 規則或網路連線";
+    }
   }
 
   // ---------------- 載入當月預約 ----------------
   async function loadAppointments(year, month){
-    await loadMembers();
-    const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
-    const end = `${year}-${String(month+1).padStart(2,'0')}-31`;
-    const snapshot = await db.collection('appointments')
-      .where('date', '>=', start)
-      .where('date', '<=', end)
-      .get();
+    try{
+      await loadMembers();
+      const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
+      const end = `${year}-${String(month+1).padStart(2,'0')}-31`;
+      const snapshot = await db.collection('appointments')
+        .where('date', '>=', start)
+        .where('date', '<=', end)
+        .get();
 
-    appointments = {};
-    snapshot.forEach(doc=>{
-      const data = doc.data();
-      if(!appointments[data.date]) appointments[data.date]=[];
-      appointments[data.date].push({...data, id: doc.id});
-    });
+      appointments = {};
+      snapshot.forEach(doc=>{
+        const data = doc.data();
+        if(!appointments[data.date]) appointments[data.date]=[];
+        appointments[data.date].push({...data, id: doc.id});
+      });
 
-    buildCalendar(year, month);
+      buildCalendar(year, month);
+    } catch(e){
+      console.error("讀取預約資料失敗", e);
+      errorMsg.textContent = "⚠️ 讀取預約資料失敗，請檢查 Firestore 規則或網路連線";
+    }
   }
 
   // ---------------- 建立日曆 ----------------
@@ -221,9 +240,6 @@
 
   // ---------------- 新增預約 ----------------
   async function addAppointment(dayStr, name, phone, service, time){
-    const conflict = (appointments[dayStr]||[]).some(a=>a.time===time);
-    if(conflict){ alert('此時段已被預約！'); return; }
-
     if(!members[phone]){
       const docRef = await db.collection('members').add({
         phone,
