@@ -227,9 +227,12 @@ btnAdd.addEventListener('click', async ()=>{
 
   // 建立交易紀錄
   await db.collection('members').doc(phone).collection('transactions').add({
-    type:'create',
-    amount:bal,
-    note:'新增會員',
+    type:'create',          // 或 'edit', 'recharge', 'deduct'
+    amount: bal,             // 或交易金額
+    before: cur,             // 扣款/儲值時才有
+    after: newBal,           // 扣款/儲值時才有
+    note:'新增會員',          // 或其他說明
+    Phone: phone,            // 這行一定要加
     createdAt: new Date()
   })
 
