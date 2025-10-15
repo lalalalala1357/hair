@@ -220,7 +220,7 @@ btnAdd.addEventListener('click', async ()=>{
   await memberRef.set({
     Name:name,
     Phone:phone,
-    Balance:bal,
+    Balance:bal || 0,
     Note: '',
     JoinedAt: new Date()
   })
@@ -323,7 +323,7 @@ function renderMemberList(list){
     html+=`<tr>
       <td>${m.Phone}</td>
       <td>${m.Name}</td>
-      <td>${m.Balance.toFixed(2)}</td>
+      <td>${(m.Balance ?? 0).toFixed(2)}</td>
       <td class="actions">
         <button data-phone="${m.Phone}" class="btnEdit">編輯</button>
         <button data-phone="${m.Phone}" class="btnDel">刪除</button>
