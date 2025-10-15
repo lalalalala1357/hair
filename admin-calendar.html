@@ -5,24 +5,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>行事曆管理 - 可莉兒 Hair Salon</title>
 <style>
-  :root{--bg:#f7fff7;--accent:#a8e6cf;--muted:#666}
-  body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0}
-  header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
-  header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
-  nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;}
-  nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
-  nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+  :root{
+    --bg:#f7fff7;
+    --accent:#a8e6cf;
+    --muted:#666;
+  }
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    margin:0;
+    padding:0;
+  }
+  header{
+    background:#a8e6cf;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  header h1{
+    margin:0;
+    color:#4a7c53;
+    font-weight:bold;
+    font-size:18px;
+  }
+  nav ul{
+    list-style:none;
+    display:flex;
+    gap:12px;
+    margin:0;
+    padding:0;
+  }
+  nav a{
+    text-decoration:none;
+    color:#333;
+    font-weight:bold;
+    padding:6px 12px;
+    border-radius:4px;
+  }
+  nav a:hover, nav a.active{
+    background:#7bd8a2;
+    color:#fff;
+  }
 
-  #controls { text-align:center; margin:20px 0; }
-  #calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; max-width:700px; margin:0 auto; }
-  .week-cell, .calendar-cell { padding:10px; border:1px solid #ccc; text-align:center; }
-  .week-cell { background:#e0f2e9; font-weight:bold; }
-  .calendar-cell { background:#fff; cursor:pointer; position:relative; }
-  .calendar-cell:hover { background:#7bd8a2; color:#fff; }
-  .label { position:absolute; top:4px; right:4px; background:#ff5c5c; color:#fff; font-size:0.7rem; padding:2px 4px; border-radius:3px; }
-  button { margin:0 5px; padding:6px 12px; background:#7bd8a2; border:none; color:#fff; border-radius:4px; cursor:pointer; }
-  button:hover { background:#5bb174; }
+  #controls { 
+    text-align:center; 
+    margin:20px 0; 
+  }
+  #calendar { 
+    display:grid; 
+    grid-template-columns:repeat(7,1fr); 
+    gap:2px; 
+    max-width:700px; 
+    margin:0 auto; 
+  }
+  .week-cell, .calendar-cell { 
+    padding:10px; 
+    border:1px solid #ccc; 
+    text-align:center; 
+  }
+  .week-cell { 
+    background:#e0f2e9; 
+    font-weight:bold; 
+  }
+  .calendar-cell { 
+    background:#fff; 
+    cursor:pointer; 
+    position:relative; 
+  }
+  .calendar-cell:hover { 
+    background:#7bd8a2; 
+    color:#000; /* 改成黑色，避免白字看不到 */
+  }
+  .label { 
+    position:absolute; 
+    top:4px; 
+    right:4px; 
+    background:#ff5c5c; 
+    color:#fff; 
+    font-size:0.7rem; 
+    padding:2px 4px; 
+    border-radius:3px; 
+  }
+  button { 
+    margin:0 5px; 
+    padding:6px 12px; 
+    background:#7bd8a2; 
+    border:none; 
+    color:#fff; 
+    border-radius:4px; 
+    cursor:pointer; 
+  }
+  button:hover { 
+    background:#5bb174; 
+  }
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -37,159 +118,210 @@
 </header>
 
 <div id="controls">
-<button id="prevMonth">上個月</button>
-<span id="monthLabel" style="font-weight:bold; margin:0 15px;"></span>
-<button id="nextMonth">下個月</button>
-<button id="exportBtn">匯出 JSON</button>
-<button id="importBtn">匯入 JSON</button>
-<button id="refreshBtn">重新整理</button>
+  <button id="prevMonth">上個月</button>
+  <span id="monthLabel" style="font-weight:bold; margin:0 15px;"></span>
+  <button id="nextMonth">下個月</button>
+  <button id="refreshBtn">重新整理</button>
 </div>
 
 <div id="calendar"></div>
-<input type="file" id="importFile" style="display:none" accept=".json">
 
 <script>
-const STORAGE_KEY_CAL = 'salon_calendar_appointments_v3';
-const STORAGE_KEY_VIP = 'vip_members';
-const STORAGE_KEY_AUTH = 'calendar_authenticated';
+  // ---------------- Firebase 初始化 ----------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+    authDomain: "hair-salon-56eb5.firebaseapp.com",
+    projectId: "hair-salon-56eb5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY_CAL)||'{}');
-let vipList = JSON.parse(localStorage.getItem(STORAGE_KEY_VIP)||'[]');
+  // ---------------- 全域變數 ----------------
+  let appointments = {};
+  let members = {};
+  let today = new Date();
+  let currentYear = today.getFullYear();
+  let currentMonth = today.getMonth();
+  const weekDays = ['日','一','二','三','四','五','六'];
 
-let today = new Date();
-let currentYear = today.getFullYear();
-let currentMonth = today.getMonth();
-const weekDays = ['日','一','二','三','四','五','六'];
-
-function buildCalendar(year, month){
-  const calendar = document.getElementById('calendar');
-  calendar.innerHTML='';
-  document.getElementById('monthLabel').textContent=`${year} 年 ${month+1} 月`;
-
-  weekDays.forEach(d=>{
-    const cell=document.createElement('div');
-    cell.classList.add('week-cell');
-    cell.textContent=d;
-    calendar.appendChild(cell);
-  });
-
-  const firstDay=new Date(year,month,1);
-  const lastDay=new Date(year,month+1,0);
-  const startWeek=firstDay.getDay();
-  const totalDays=lastDay.getDate();
-
-  for(let i=0;i<startWeek;i++){
-    const cell=document.createElement('div');
-    cell.classList.add('calendar-cell');
-    cell.style.background='#f0f0f0';
-    calendar.appendChild(cell);
-  }
-
-  for(let d=1; d<=totalDays; d++){
-    const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const cell=document.createElement('div');
-    cell.classList.add('calendar-cell');
-    cell.textContent=d;
-
-    if(appointments[dayStr] && appointments[dayStr].length>0){
-      const label = document.createElement('div');
-      label.classList.add('label');
-      let count = appointments[dayStr].length;
-      const hasVIP = appointments[dayStr].some(a => vipList.some(v => v.phone === a.phone));
-      label.textContent = hasVIP ? `★${count}` : `${count}`;
-      cell.appendChild(label);
-    }
-
-    cell.addEventListener('click', ()=>manageDay(dayStr));
-    calendar.appendChild(cell);
-  }
-}
-
-function manageDay(dayStr){
-  const dayAppointments = appointments[dayStr] || [];
-  let msg = `📅 ${dayStr} 的預約:\n\n`;
-  dayAppointments.forEach((a,i)=>{
-    let star = vipList.some(v => v.phone === a.phone) ? ' ★VIP' : '';
-    msg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})${star}\n 服務: ${a.service}\n`;
-  });
-  msg+='\n輸入:\n1 = 新增預約\n2 = 刪除預約\n取消 = 離開';
-  const action = prompt(msg);
-  if(action==='1'){
-    const name=prompt('姓名:'); if(!name) return;
-    const phone=prompt('電話:'); if(!phone) return;
-    const service=prompt('服務項目:'); if(!service) return;
-    const time=prompt('時間 (例如 10:00):'); if(!time) return;
-    if(!appointments[dayStr]) appointments[dayStr]=[];
-    appointments[dayStr].push({name, phone, service, time});
-    localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
-    buildCalendar(currentYear,currentMonth);
-  } else if(action==='2'){
-    if(dayAppointments.length===0){ alert('無預約可刪'); return; }
-    let delMsg='輸入要刪除的編號:\n';
-    dayAppointments.forEach((a,i)=>{
-      delMsg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})\n`;
+  // ---------------- 載入會員資料 ----------------
+  async function loadMembers(){
+    const snapshot = await db.collection('members').get();
+    members = {};
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      members[data.phone] = data;
     });
-    const delIndex=parseInt(prompt(delMsg))-1;
-    if(!isNaN(delIndex) && dayAppointments[delIndex]){
-      dayAppointments.splice(delIndex,1);
-      if(dayAppointments.length===0) delete appointments[dayStr];
-      localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
-      buildCalendar(currentYear,currentMonth);
+  }
+
+  // ---------------- 載入當月預約 ----------------
+  async function loadAppointments(year, month){
+    await loadMembers();
+    const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
+    const end = `${year}-${String(month+1).padStart(2,'0')}-31`;
+    const snapshot = await db.collection('appointments')
+      .where('date', '>=', start)
+      .where('date', '<=', end)
+      .get();
+
+    appointments = {};
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      if(!appointments[data.date]) appointments[data.date]=[];
+      appointments[data.date].push({...data, id: doc.id});
+    });
+
+    buildCalendar(year, month);
+  }
+
+  // ---------------- 建立日曆 ----------------
+  function buildCalendar(year, month){
+    const calendar = document.getElementById('calendar');
+    calendar.innerHTML='';
+    document.getElementById('monthLabel').textContent=`${year} 年 ${month+1} 月`;
+
+    weekDays.forEach(d=>{
+      const cell=document.createElement('div');
+      cell.classList.add('week-cell');
+      cell.textContent=d;
+      calendar.appendChild(cell);
+    });
+
+    const firstDay=new Date(year,month,1);
+    const lastDay=new Date(year,month+1,0);
+    const startWeek=firstDay.getDay();
+    const totalDays=lastDay.getDate();
+
+    for(let i=0;i<startWeek;i++){
+      const cell=document.createElement('div');
+      cell.classList.add('calendar-cell');
+      cell.style.background='#f0f0f0';
+      calendar.appendChild(cell);
+    }
+
+    for(let d=1; d<=totalDays; d++){
+      const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const cell=document.createElement('div');
+      cell.classList.add('calendar-cell');
+      cell.textContent=d;
+
+      if(appointments[dayStr] && appointments[dayStr].length>0){
+        const label = document.createElement('div');
+        label.classList.add('label');
+        let count = appointments[dayStr].length;
+        const hasVIP = appointments[dayStr].some(a => members[a.memberId] && members[a.memberId].balance>0);
+        label.textContent = hasVIP ? `★${count}` : `${count}`;
+        cell.appendChild(label);
+      }
+
+      cell.addEventListener('click', ()=>manageDay(dayStr));
+      calendar.appendChild(cell);
     }
   }
-}
 
-document.getElementById('prevMonth').addEventListener('click', ()=>{
-  currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
-  buildCalendar(currentYear,currentMonth);
-});
-document.getElementById('nextMonth').addEventListener('click', ()=>{
-  currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; }
-  buildCalendar(currentYear,currentMonth);
-});
+  // ---------------- 新增預約 ----------------
+  async function addAppointment(dayStr, name, phone, service, time){
+    const conflict = (appointments[dayStr]||[]).some(a=>a.time===time);
+    if(conflict){ alert('此時段已被預約！'); return; }
 
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const dataStr = "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appointments,null,2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute("href", dataStr);
-  dlAnchor.setAttribute("download","appointments.json");
-  dlAnchor.click();
-});
-document.getElementById('importBtn').addEventListener('click', ()=>{
-  document.getElementById('importFile').click();
-});
-document.getElementById('importFile').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt){
-    try{
-      appointments = JSON.parse(evt.target.result);
-      localStorage.setItem(STORAGE_KEY_CAL, JSON.stringify(appointments));
-      buildCalendar(currentYear,currentMonth);
-      alert('匯入成功！');
-    }catch(err){ alert('檔案格式錯誤'); }
-  }
-  reader.readAsText(file);
-});
-document.getElementById('refreshBtn').addEventListener('click', ()=>{
-  appointments = JSON.parse(localStorage.getItem(STORAGE_KEY_CAL)||'{}');
-  vipList = JSON.parse(localStorage.getItem(STORAGE_KEY_VIP)||'[]');
-  buildCalendar(currentYear,currentMonth);
-});
+    if(!members[phone]){
+      const docRef = await db.collection('members').add({
+        phone,
+        name,
+        balance: 0,
+        note: '',
+        joinedAt: new Date()
+      });
+      members[phone] = {phone,name,balance:0,note:'',joinedAt:new Date()};
+    }
 
-if(!localStorage.getItem(STORAGE_KEY_AUTH)){
-  const password = prompt('請輸入管理密碼');
-  if(password==='salon2025'){
-    localStorage.setItem(STORAGE_KEY_AUTH,'true');
+    const docRef2 = await db.collection('appointments').add({
+      memberId: phone,
+      memberName: name,
+      service,
+      date: dayStr,
+      time,
+      status: '已預約',
+      note: '',
+      createdAt: new Date()
+    });
+
+    if(!appointments[dayStr]) appointments[dayStr]=[];
+    appointments[dayStr].push({id: docRef2.id, memberId: phone, memberName:name, service, date:dayStr, time, status:'已預約'});
     buildCalendar(currentYear,currentMonth);
-  } else {
-    alert('密碼錯誤！');
-    document.body.innerHTML='<h2 style="text-align:center;margin-top:100px;">密碼錯誤，無法進入行事曆</h2>';
   }
-} else {
-  buildCalendar(currentYear,currentMonth);
-}
+
+  // ---------------- 刪除預約 ----------------
+  async function deleteAppointment(dayStr, index){
+    const appt = appointments[dayStr][index];
+    await db.collection('appointments').doc(appt.id).delete();
+    appointments[dayStr].splice(index,1);
+    if(appointments[dayStr].length===0) delete appointments[dayStr];
+    buildCalendar(currentYear,currentMonth);
+  }
+
+  // ---------------- 管理格子 ----------------
+  function manageDay(dayStr){
+    const dayAppointments = appointments[dayStr] || [];
+    let msg = `📅 ${dayStr} 的預約:\n\n`;
+    dayAppointments.forEach((a,i)=>{
+      let star = members[a.memberId] && members[a.memberId].balance>0 ? ' ★VIP' : '';
+      msg+=`${i+1}. ${a.time} - ${a.memberName} (${a.memberId})${star}\n 服務: ${a.service}\n`;
+    });
+    msg+='\n輸入:\n1 = 新增預約\n2 = 刪除預約\n取消 = 離開';
+    const action = prompt(msg);
+    if(action==='1'){
+      const name=prompt('姓名:'); if(!name) return;
+      const phone=prompt('電話:'); if(!phone) return;
+      const service=prompt('服務項目:'); if(!service) return;
+      const time=prompt('時間 (例如 10:00):'); if(!time) return;
+      addAppointment(dayStr,name,phone,service,time);
+    } else if(action==='2'){
+      if(dayAppointments.length===0){ alert('無預約可刪'); return; }
+      let delMsg='輸入要刪除的編號:\n';
+      dayAppointments.forEach((a,i)=>{
+        delMsg+=`${i+1}. ${a.time} - ${a.memberName} (${a.memberId})\n`;
+      });
+      const delIndex=parseInt(prompt(delMsg))-1;
+      if(!isNaN(delIndex) && dayAppointments[delIndex]){
+        deleteAppointment(dayStr,delIndex);
+      }
+    }
+  }
+
+  // ---------------- 上下月 ----------------
+  document.getElementById('prevMonth').addEventListener('click', ()=>{
+    currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
+    loadAppointments(currentYear,currentMonth);
+  });
+  document.getElementById('nextMonth').addEventListener('click', ()=>{
+    currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; }
+    loadAppointments(currentYear,currentMonth);
+  });
+
+  // ---------------- 重新整理 ----------------
+  document.getElementById('refreshBtn').addEventListener('click', ()=>{
+    loadAppointments(currentYear,currentMonth);
+  });
+
+  // ---------------- 初始載入 ----------------
+  if(!localStorage.getItem('calendar_authenticated')){
+    const password = prompt('請輸入管理密碼');
+    if(password==='salon2025'){
+      localStorage.setItem('calendar_authenticated','true');
+      loadAppointments(currentYear,currentMonth);
+    } else {
+      alert('密碼錯誤！');
+      document.body.innerHTML='<h2 style="text-align:center;margin-top:100px;">密碼錯誤，無法進入行事曆</h2>';
+    }
+  } else {
+    loadAppointments(currentYear,currentMonth);
+  }
+
+  // ---------------- 即時監聽 ----------------
+  db.collection('appointments').onSnapshot(()=>{
+    loadAppointments(currentYear,currentMonth);
+  });
 </script>
 
 </body>
