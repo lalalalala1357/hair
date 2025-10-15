@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>VIP 管理 - 可莉兒 Hair Salon</title>
 <style>
-:root{--bg:#f7fff7;--card:#ffffff;--accent:#a8e6cf;--muted:#666}
+:root{--bg:#f7fff7;--cㄐard:#ffffff;--accent:#a8e6cf;--muted:#666}
 body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0px}
 header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
@@ -30,6 +30,10 @@ td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 .hidden{display:none}
 .toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;padding:10px 14px;border-radius:8px}
 </style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -111,7 +115,22 @@ td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 </div>
 
 <script>
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzlq9zL8TXqbsstCgarJ6lEmqXkO-DEbXhGyDnmBVqNsDANY0fq7Xsbqoog2a_l3Ssj/exec";
+const ADMIN_FLAG = 'vip_admin_ok_v1'
+let lastMembers = []
+let lastTrans = []
+
+// --------------- Firebase Config -----------------
+const firebaseConfig = {
+  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+  authDomain: "hair-salon-56eb5.firebaseapp.com",
+  projectId: "hair-salon-56eb5",
+  storageBucket: "hair-salon-56eb5.appspot.com",
+  messagingSenderId: "64472921085",
+  appId: "1:64472921085:web:78ba36b069597490625f94"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+// -----------------------------------------------
 
 const loginCard = document.getElementById('loginCard')
 const mainUI = document.getElementById('mainUI')
@@ -141,10 +160,6 @@ const notesBox = document.getElementById('notesBox')
 const btnSaveNotes = document.getElementById('btnSaveNotes')
 const btnExportCSV = document.getElementById('btnExportCSV')
 
-const ADMIN_FLAG = 'vip_admin_ok_v1'
-let lastMembers = []
-let lastTrans = []
-
 function showToast(msg='已儲存', time=2000){
   toast.textContent = msg
   toast.classList.remove('hidden')
@@ -155,7 +170,7 @@ function checkLogin(){
   if(localStorage.getItem(ADMIN_FLAG)){
     loginCard.classList.add('hidden')
     mainUI.classList.remove('hidden')
-    initLocalData()
+    initFirestoreData()
   }
 }
 checkLogin()
@@ -165,20 +180,24 @@ btnLogin.addEventListener('click', ()=>{
   loginCard.classList.add('hidden')
   mainUI.classList.remove('hidden')
   adminPassword.value=''
-  initLocalData()
+  initFirestoreData()
 })
 
-async function initLocalData(){
+async function initFirestoreData(){
   try{
-    const res = await fetch(WEBAPP_URL)
-    const data = await res.json()
-    lastMembers = data.members || []
-    lastTrans = data.transactions || []
+    const snapshot = await db.collection('members').get()
+    lastMembers = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }))
 
-    // 刷新後自動選中最後編輯會員
+    // 將交易紀錄簡單組合，假設每次變動都有加入 members.collection('transactions') 
+    lastTrans = []
+    for(const m of lastMembers){
+      const tsnap = await db.collection('members').doc(m.Phone).collection('transactions').get()
+      tsnap.forEach(d=>lastTrans.push({ id:d.id, ...d.data() }))
+    }
+
     const lastPhone = localStorage.getItem('lastSelectedPhone')
     if(lastPhone){
-      const idx = lastMembers.findIndex(m=>m.phone===lastPhone)
+      const idx = lastMembers.findIndex(m=>m.Phone===lastPhone)
       if(idx>=0) populateFormForEdit(lastPhone)
     }
 
@@ -187,41 +206,36 @@ async function initLocalData(){
   } catch(err){console.error(err); alert('讀取會員資料失敗')}
 }
 
-async function saveMembers(){
-  try{
-    await fetch(WEBAPP_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'saveMembers', members:lastMembers})
-    })
-  } catch(err){console.error(err); showToast('儲存會員失敗')}
-}
-
-async function saveTrans(){
-  try{
-    await fetch(WEBAPP_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'saveTrans', transactions:lastTrans})
-    })
-  } catch(err){console.error(err); showToast('儲存交易失敗')}
-}
-
 // 新增會員
 btnAdd.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
   const name = nameInput.value.trim()
   const bal = parseFloat(balanceInput.value)||0
   if(!phone||!name){ alert('請填電話與姓名'); return }
-  if(lastMembers.some(m=>m.phone===phone)){ if(!confirm('該電話已存在，要覆蓋嗎？')) return }
-  const idx = lastMembers.findIndex(m=>m.phone===phone)
-  if(idx>=0) lastMembers[idx]={phone,name,balance:bal,createdAt:Date.now(),note:lastMembers[idx].note||''}
-  else lastMembers.push({phone,name,balance:bal,createdAt:Date.now(),note:''})
-  lastTrans.push({phone,type:'create',amount:bal,note:'新增會員',createdAt:Date.now()})
-  await saveMembers(); await saveTrans()
+
+  const memberRef = db.collection('members').doc(phone)
+  const docSnap = await memberRef.get()
+  if(docSnap.exists && !confirm('該電話已存在，要覆蓋嗎？')) return
+
+  await memberRef.set({
+    Name:name,
+    Phone:phone,
+    Balance:bal,
+    Note: '',
+    JoinedAt: new Date()
+  })
+
+  // 建立交易紀錄
+  await db.collection('members').doc(phone).collection('transactions').add({
+    type:'create',
+    amount:bal,
+    note:'新增會員',
+    createdAt: new Date()
+  })
+
   showToast('會員已新增')
   clearForm()
-  renderMemberList(lastMembers)
+  initFirestoreData()
 })
 
 btnClear.addEventListener('click', clearForm)
@@ -235,7 +249,7 @@ function clearForm(){
 btnSearch.addEventListener('click', ()=>{
   const p = searchPhone.value.trim()
   if(!p) return
-  const results = lastMembers.filter(m=>m.phone.includes(p))
+  const results = lastMembers.filter(m=>m.Phone.includes(p))
   if(results.length===0) return alert('找不到會員')
   renderMemberList(results)
 })
@@ -250,14 +264,23 @@ btnUpdate.addEventListener('click', async ()=>{
   const name = nameInput.value.trim()
   const bal = parseFloat(balanceInput.value)||0
   if(!phone||!name){ alert('請填電話與姓名'); return }
-  const idx = lastMembers.findIndex(m=>m.phone===phone)
-  if(idx<0) return alert('找不到會員')
-  lastMembers[idx]={phone,name,balance:bal,createdAt:lastMembers[idx].createdAt,note:lastMembers[idx].note||''}
-  lastTrans.push({phone,type:'edit',amount:bal,note:'更新會員資料',createdAt:Date.now()})
-  await saveMembers(); await saveTrans()
+
+  await db.collection('members').doc(phone).update({
+    Name:name,
+    Balance:bal,
+    Note: notesBox.value
+  })
+
+  await db.collection('members').doc(phone).collection('transactions').add({
+    type:'edit',
+    amount:bal,
+    note:'更新會員資料',
+    createdAt: new Date()
+  })
+
   showToast('會員已更新')
   clearForm()
-  renderMemberList(lastMembers)
+  initFirestoreData()
 })
 
 btnRecharge.addEventListener('click', ()=>transactionChange('recharge'))
@@ -268,16 +291,27 @@ async function transactionChange(mode){
   if(!phone) return alert('請在搜尋或表單中選擇會員')
   const amt = parseFloat(mode==='recharge'?rechargeAmount.value:deductAmount.value)
   if(!amt||isNaN(amt)) return alert('請輸入正確金額')
-  const idx = lastMembers.findIndex(m=>m.phone===phone)
-  if(idx<0) return alert('找不到會員')
-  const cur = lastMembers[idx].balance||0
+
+  const memberRef = db.collection('members').doc(phone)
+  const docSnap = await memberRef.get()
+  if(!docSnap.exists) return alert('找不到會員')
+
+  const cur = docSnap.data().Balance || 0
   const newBal = mode==='recharge'?cur+amt:cur-amt
-  lastMembers[idx].balance=newBal
-  lastTrans.push({phone,type:mode,amount:amt,before:cur,after:newBal,note:mode==='recharge'?'手動儲值':'手動扣款',createdAt:Date.now()})
-  await saveMembers(); await saveTrans()
+
+  await memberRef.update({ Balance:newBal })
+  await memberRef.collection('transactions').add({
+    type:mode,
+    amount:amt,
+    before:cur,
+    after:newBal,
+    note: mode==='recharge'?'手動儲值':'手動扣款',
+    createdAt: new Date()
+  })
+
   showToast(mode==='recharge'?'已儲值':'已扣款')
   rechargeAmount.value=''; deductAmount.value=''
-  renderMemberList(lastMembers)
+  initFirestoreData()
 }
 
 function renderMemberList(list){
@@ -287,12 +321,12 @@ function renderMemberList(list){
   let html='<div style="max-height:300px;overflow:auto;"><table><thead><tr><th>電話</th><th>姓名</th><th>餘額</th><th>操作</th></tr></thead><tbody>'
   for(const m of displayList){
     html+=`<tr>
-      <td>${m.phone}</td>
-      <td>${m.name}</td>
-      <td>${m.balance.toFixed(2)}</td>
+      <td>${m.Phone}</td>
+      <td>${m.Name}</td>
+      <td>${m.Balance.toFixed(2)}</td>
       <td class="actions">
-        <button data-phone="${m.phone}" class="btnEdit">編輯</button>
-        <button data-phone="${m.phone}" class="btnDel">刪除</button>
+        <button data-phone="${m.Phone}" class="btnEdit">編輯</button>
+        <button data-phone="${m.Phone}" class="btnDel">刪除</button>
       </td>
     </tr>`
   }
@@ -305,27 +339,24 @@ function renderMemberList(list){
   memberList.querySelectorAll('.btnDel').forEach(b=>b.addEventListener('click',async e=>{
     const phone=e.currentTarget.dataset.phone
     if(confirm('確定刪除此會員？')){
-      lastMembers = lastMembers.filter(m=>m.phone!==phone)
-      lastTrans.push({phone,type:'delete',amount:0,note:'刪除會員',createdAt:Date.now()})
-      await saveMembers(); await saveTrans()
-      renderMemberList(lastMembers)
-      renderTransList(lastTrans)
-      localStorage.removeItem('lastSelectedPhone')
+      await db.collection('members').doc(phone).delete()
+      showToast('會員已刪除')
+      clearForm()
+      initFirestoreData()
     }
   }))
 }
 
 function populateFormForEdit(phone){
-  const idx = lastMembers.findIndex(m=>m.phone===phone)
+  const idx = lastMembers.findIndex(m=>m.Phone===phone)
   if(idx<0) return alert('找不到會員')
   const m = lastMembers[idx]
-  phoneInput.value = m.phone
-  nameInput.value = m.name
-  balanceInput.value = m.balance
-  notesBox.value = m.note || ''
+  phoneInput.value = m.Phone
+  nameInput.value = m.Name
+  balanceInput.value = m.Balance
+  notesBox.value = m.Note || ''
   btnUpdate.classList.remove('hidden'); btnAdd.classList.add('hidden')
 
-  // 記住選中的會員
   localStorage.setItem('lastSelectedPhone', phone)
 }
 
@@ -334,14 +365,13 @@ function renderTransList(list){
   const displayList = list.slice(-50).reverse()
   let html='<table><thead><tr><th>時間</th><th>電話</th><th>類型</th><th>金額</th><th>備註</th></tr></thead><tbody>'
   for(const t of displayList){
-    const d = t
-    const dt = new Date(d.createdAt).toLocaleString()
+    const dt = new Date(t.createdAt.seconds? t.createdAt.toDate() : t.createdAt).toLocaleString()
     html+=`<tr>
       <td>${dt}</td>
-      <td>${d.phone}</td>
-      <td>${d.type}</td>
-      <td>${d.amount}</td>
-      <td>${d.note||''}</td>
+      <td>${t.phone || t.Phone}</td>
+      <td>${t.type}</td>
+      <td>${t.amount}</td>
+      <td>${t.note||''}</td>
     </tr>`
   }
   html+='</tbody></table>'
@@ -351,17 +381,16 @@ function renderTransList(list){
 btnSaveNotes.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
   if(!phone) return alert('請先選擇或輸入會員')
-  const idx = lastMembers.findIndex(m=>m.phone===phone)
-  if(idx<0) return alert('找不到會員')
-  lastMembers[idx].note = notesBox.value
-  await saveMembers()
+  const note = notesBox.value
+  await db.collection('members').doc(phone).update({ Note: note })
   showToast('備註已儲存（本會員）')
+  initFirestoreData()
 })
 
 btnExportCSV.addEventListener('click', ()=>{
   if(!lastMembers.length) return alert('沒有會員可匯出')
   const rows=[['phone','name','balance']]
-  for(const m of lastMembers) rows.push([m.phone,m.name,m.balance])
+  for(const m of lastMembers) rows.push([m.Phone,m.Name,m.Balance])
   const csv = rows.map(r=> r.map(c=> '"'+(''+c).replace(/"/g,'""')+'"').join(',')).join('\n')
   const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'})
   const url = URL.createObjectURL(blob)
