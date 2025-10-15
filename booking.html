@@ -167,11 +167,21 @@
   <a href="https://www.instagram.com/" target="_blank">Instagram</a>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-  const bookingForm = document.getElementById('booking-form');
-  const STORAGE_KEY = 'salon_calendar_appointments_v3';
+  // ---------------- Firebase 初始化 ----------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+    authDomain: "hair-salon-56eb5.firebaseapp.com",
+    projectId: "hair-salon-56eb5",
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  bookingForm.addEventListener('submit', e => {
+  const bookingForm = document.getElementById('booking-form');
+
+  bookingForm.addEventListener('submit', async e => {
     e.preventDefault();
 
     const service = document.getElementById('service').value;
@@ -180,16 +190,25 @@
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
 
-    // 讀取原本預約資料
-    let appointments = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (!appointments[date]) appointments[date] = [];
-    appointments[date].push({
-      name, phone, service, time, createdAt: new Date().toISOString()
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appointments));
+    try {
+      // 將預約寫入 Firestore 的 appointments 集合
+      await db.collection('appointments').add({
+        memberName: name,
+        memberId: phone,
+        service: service,
+        date: date,
+        time: time,
+        status: '已預約',
+        note: '',
+        createdAt: new Date()
+      });
 
-    alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
-    bookingForm.reset();
+      alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
+      bookingForm.reset();
+    } catch (err) {
+      console.error(err);
+      alert('❌ 預約送出失敗，請稍後再試。');
+    }
   });
 </script>
 
