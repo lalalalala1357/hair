@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>VIP 管理 - 可莉兒 Hair Salon</title>
 <style>
-:root{--bg:#f7fff7;--cㄐard:#ffffff;--accent:#a8e6cf;--muted:#666}
-body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0px}
+:root{--bg:#f7fff7;--card:#ffffff;--accent:#a8e6cf;--muted:#666;--btn:#ccc}
+body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0}
 header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
 nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;}
@@ -17,7 +17,7 @@ nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
 .card{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
 .col{flex:1;min-width:280px}
 input,button,select,textarea{font-size:14px;padding:8px;border-radius:6px;border:1px solid #ddd}
-button{cursor:pointer}
+button{cursor:pointer;background:var(--btn);border:none}
 .small{font-size:13px;color:var(--muted)}
 .member-list{max-height:360px;overflow:auto;margin-top:8px}
 table{width:100%;border-collapse:collapse}
@@ -38,80 +38,86 @@ td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 <body>
 
 <header>
-  <h1>可莉兒 Hair Salon</h1>
-  <nav>
-    <ul>
-      <li><a href="#" class="active">VIP 管理</a></li>
-      <li><a href="admin-calendar.html">行事曆管理</a></li>
-    </ul>
-  </nav>
+<h1>可莉兒 Hair Salon</h1>
+<nav>
+<ul>
+<li><a href="#" class="active">VIP 管理</a></li>
+<li><a href="admin-calendar.html">行事曆管理</a></li>
+</ul>
+</nav>
 </header>
 
 <div class="container">
-  <div id="loginCard" class="card" style="margin-top:12px;max-width:520px">
-    <h3>請輸入管理密碼（單機測試，隨便輸入都可登入）</h3>
-    <div class="topbar">
-      <input id="adminPassword" placeholder="輸入管理密碼" type="password" />
-      <button id="btnLogin">登入</button>
-      <div class="small">密碼會被保存在此瀏覽器。</div>
-    </div>
-  </div>
+<!-- 登入卡 -->
+<div id="loginCard" class="card" style="margin-top:12px;max-width:520px">
+<h3>請輸入管理密碼（單機測試，隨便輸入都可登入）</h3>
+<div class="topbar">
+<input id="adminPassword" placeholder="輸入管理密碼" type="password" />
+<button id="btnLogin">登入</button>
+<div class="small">密碼會被保存在此瀏覽器。</div>
+</div>
+</div>
 
-  <div id="mainUI" class="hidden">
-    <div class="row" style="margin-top:12px">
-      <div class="card col" style="max-width:420px">
-        <h3>新增 / 編輯 會員</h3>
-        <div style="display:grid;gap:8px">
-          <input id="phoneInput" placeholder="電話 (必填，作為會員識別)" />
-          <input id="nameInput" placeholder="姓名 (必填)" />
-          <input id="balanceInput" placeholder="初始儲值 (可為空，數字)" />
-          <div class="flex">
-            <button id="btnAdd">新增會員</button>
-            <button id="btnUpdate" class="hidden">更新會員</button>
-            <button id="btnClear">清除表單</button>
-          </div>
-          <div class="small muted">備註：電話將作為識別碼 (請勿重複)。</div>
-        </div>
-      </div>
+<!-- 主畫面 -->
+<div id="mainUI" class="hidden">
+<div class="row" style="margin-top:12px">
+<!-- 新增 / 編輯會員 -->
+<div class="card col" style="max-width:420px">
+<h3>新增 / 編輯 會員</h3>
+<div style="display:grid;gap:8px">
+<input id="phoneInput" placeholder="電話 (必填，作為會員識別)" />
+<input id="nameInput" placeholder="姓名 (必填)" />
+<input id="balanceInput" placeholder="初始儲值 (可為空，數字)" />
+<div class="flex">
+<button id="btnAdd">新增會員</button>
+<button id="btnUpdate" class="hidden">更新會員</button>
+<button id="btnClear">清除表單</button>
+</div>
+<div class="small muted">備註：電話將作為識別碼 (請勿重複)。</div>
+</div>
+</div>
 
-      <div class="card col">
-        <h3>搜尋會員 / 快速動作</h3>
-        <div class="flex">
-          <input id="searchPhone" placeholder="以電話搜尋" style="flex:1" />
-          <button id="btnSearch">搜尋</button>
-          <button id="btnShowAll">顯示最新會員</button>
-        </div>
+<!-- 搜尋 / 儲值扣款 -->
+<div class="card col">
+<h3>搜尋會員 / 快速動作</h3>
+<div class="flex">
+<input id="searchPhone" placeholder="以電話搜尋" style="flex:1" />
+<button id="btnSearch">搜尋</button>
+<button id="btnShowAll">顯示最新會員</button>
+</div>
 
-        <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <input id="rechargeAmount" placeholder="儲值金額" />
-          <input id="deductAmount" placeholder="扣款金額" />
-          <button id="btnRecharge">確認儲值</button>
-          <button id="btnDeduct">確認扣款</button>
-        </div>
+<div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<input id="rechargeAmount" placeholder="儲值金額" />
+<input id="deductAmount" placeholder="扣款金額" />
+<button id="btnRecharge">確認儲值</button>
+<button id="btnDeduct">確認扣款</button>
+</div>
 
-        <div class="member-list" id="memberList"></div>
-      </div>
-    </div>
+<div class="member-list" id="memberList"></div>
+</div>
+</div>
 
-    <div class="row" style="margin-top:12px">
-      <div class="card col">
-        <h3>交易紀錄 / 修改紀錄</h3>
-        <div class="small muted">近期交易會即時顯示</div>
-        <div id="transList" style="max-height:360px;overflow:auto;margin-top:8px"></div>
-      </div>
+<div class="row" style="margin-top:12px">
+<!-- 交易紀錄 -->
+<div class="card col">
+<h3>交易紀錄 / 修改紀錄</h3>
+<div class="small muted">近期交易會即時顯示</div>
+<div id="transList" style="max-height:360px;overflow:auto;margin-top:8px"></div>
+</div>
 
-      <div class="card col" style="max-width:360px">
-        <h3>客戶備注</h3>
-        <textarea id="notesBox" rows="6" placeholder="客戶消費備註與回饋顯示在這裡"></textarea>
-        <div style="margin-top:8px" class="flex">
-          <button id="btnSaveNotes">儲存客戶備注</button>
-          <button id="btnExportCSV">匯出會員CSV</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- 客戶備注 -->
+<div class="card col" style="max-width:360px">
+<h3>客戶備注</h3>
+<textarea id="notesBox" rows="6" placeholder="客戶消費備註與回饋顯示在這裡"></textarea>
+<div style="margin-top:8px" class="flex">
+<button id="btnSaveNotes">儲存客戶備注</button>
+<button id="btnExportCSV">匯出會員CSV</button>
+</div>
+</div>
+</div>
+</div>
 
-  <div id="toast" class="toast hidden">已儲存</div>
+<div id="toast" class="toast hidden">已儲存</div>
 </div>
 
 <script>
@@ -119,23 +125,20 @@ const ADMIN_FLAG = 'vip_admin_ok_v1'
 let lastMembers = []
 let lastTrans = []
 
-// --------------- Firebase Config -----------------
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5",
-  storageBucket: "hair-salon-56eb5.appspot.com",
-  messagingSenderId: "64472921085",
-  appId: "1:64472921085:web:78ba36b069597490625f94"
+apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+authDomain: "hair-salon-56eb5.firebaseapp.com",
+projectId: "hair-salon-56eb5",
+storageBucket: "hair-salon-56eb5.appspot.com",
+messagingSenderId: "64472921085",
+appId: "1:64472921085:web:78ba36b069597490625f94"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-// -----------------------------------------------
 
 const loginCard = document.getElementById('loginCard')
 const mainUI = document.getElementById('mainUI')
 const btnLogin = document.getElementById('btnLogin')
-const adminPassword = document.getElementById('adminPassword')
 const toast = document.getElementById('toast')
 
 const phoneInput = document.getElementById('phoneInput')
@@ -179,21 +182,30 @@ btnLogin.addEventListener('click', ()=>{
   localStorage.setItem(ADMIN_FLAG,'1')
   loginCard.classList.add('hidden')
   mainUI.classList.remove('hidden')
-  adminPassword.value=''
   initFirestoreData()
 })
 
+// 讀取會員與交易資料
 async function initFirestoreData(){
   try{
     const snapshot = await db.collection('members').get()
     lastMembers = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }))
 
-    // 將交易紀錄簡單組合，假設每次變動都有加入 members.collection('transactions') 
     lastTrans = []
     for(const m of lastMembers){
       const tsnap = await db.collection('members').doc(m.Phone).collection('transactions').get()
-      tsnap.forEach(d=>lastTrans.push({ id:d.id, ...d.data() }))
+      tsnap.forEach(d=>{
+        const data = d.data()
+        lastTrans.push({ id:d.id, Phone: m.Phone, ...data })
+      })
     }
+
+    // 交易排序：最新在上
+    lastTrans.sort((a,b)=>{
+      const tA = a.createdAt?.seconds ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()
+      const tB = b.createdAt?.seconds ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()
+      return tB - tA
+    })
 
     const lastPhone = localStorage.getItem('lastSelectedPhone')
     if(lastPhone){
@@ -225,14 +237,13 @@ btnAdd.addEventListener('click', async ()=>{
     JoinedAt: new Date()
   })
 
-  // 建立交易紀錄
-  await db.collection('members').doc(phone).collection('transactions').add({
-    type:'create',          // 或 'edit', 'recharge', 'deduct'
-    amount: bal,             // 或交易金額
-    before: cur,             // 扣款/儲值時才有
-    after: newBal,           // 扣款/儲值時才有
-    note:'新增會員',          // 或其他說明
-    Phone: phone,            // 這行一定要加
+  await memberRef.collection('transactions').add({
+    type:'create',
+    amount: bal,
+    before: 0,
+    after: bal,
+    note:'新增會員',
+    Phone: phone,
     createdAt: new Date()
   })
 
@@ -249,6 +260,7 @@ function clearForm(){
   localStorage.removeItem('lastSelectedPhone')
 }
 
+// 搜尋 / 顯示所有
 btnSearch.addEventListener('click', ()=>{
   const p = searchPhone.value.trim()
   if(!p) return
@@ -256,12 +268,12 @@ btnSearch.addEventListener('click', ()=>{
   if(results.length===0) return alert('找不到會員')
   renderMemberList(results)
 })
-
 btnShowAll.addEventListener('click', ()=>{
   searchPhone.value=''
   renderMemberList(lastMembers)
 })
 
+// 編輯會員
 btnUpdate.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
   const name = nameInput.value.trim()
@@ -277,7 +289,10 @@ btnUpdate.addEventListener('click', async ()=>{
   await db.collection('members').doc(phone).collection('transactions').add({
     type:'edit',
     amount:bal,
+    before: 0,
+    after: bal,
     note:'更新會員資料',
+    Phone: phone,
     createdAt: new Date()
   })
 
@@ -286,6 +301,7 @@ btnUpdate.addEventListener('click', async ()=>{
   initFirestoreData()
 })
 
+// 儲值 / 扣款
 btnRecharge.addEventListener('click', ()=>transactionChange('recharge'))
 btnDeduct.addEventListener('click', ()=>transactionChange('deduct'))
 
@@ -309,6 +325,7 @@ async function transactionChange(mode){
     before:cur,
     after:newBal,
     note: mode==='recharge'?'手動儲值':'手動扣款',
+    Phone: phone,
     createdAt: new Date()
   })
 
@@ -317,6 +334,7 @@ async function transactionChange(mode){
   initFirestoreData()
 }
 
+// 渲染會員列表
 function renderMemberList(list){
   if(!Array.isArray(list)) list=[]
   if(list.length===0){ memberList.innerHTML='<div class="small muted">目前沒有會員</div>'; return }
@@ -335,6 +353,7 @@ function renderMemberList(list){
   }
   html+='</tbody></table></div>'
   memberList.innerHTML=html
+
   memberList.querySelectorAll('.btnEdit').forEach(b=>b.addEventListener('click',e=>{
     const phone=e.currentTarget.dataset.phone
     populateFormForEdit(phone)
@@ -350,6 +369,7 @@ function renderMemberList(list){
   }))
 }
 
+// 填入編輯表單
 function populateFormForEdit(phone){
   const idx = lastMembers.findIndex(m=>m.Phone===phone)
   if(idx<0) return alert('找不到會員')
@@ -359,28 +379,41 @@ function populateFormForEdit(phone){
   balanceInput.value = m.Balance
   notesBox.value = m.Note || ''
   btnUpdate.classList.remove('hidden'); btnAdd.classList.add('hidden')
-
   localStorage.setItem('lastSelectedPhone', phone)
 }
 
+// 渲染交易紀錄 (依時間排序，最新在上)
 function renderTransList(list){
-  if(!list.length){ transList.innerHTML='<div class="small muted">目前無交易紀錄</div>'; return }
-  const displayList = list.slice(-50).reverse()
+  if(!list.length){ 
+    transList.innerHTML='<div class="small muted">目前無交易紀錄</div>'; 
+    return 
+  }
   let html='<table><thead><tr><th>時間</th><th>電話</th><th>類型</th><th>金額</th><th>備註</th></tr></thead><tbody>'
-  for(const t of displayList){
-    const dt = new Date(t.createdAt.seconds? t.createdAt.toDate() : t.createdAt).toLocaleString()
+  for(const t of list){
+    const dt = t.createdAt?.seconds ? t.createdAt.toDate().toLocaleString() : new Date(t.createdAt).toLocaleString()
+    const phone = t.Phone || t.phone || '未知'
+
+    let amountStr = ''
+    if(t.before !== undefined && t.after !== undefined){
+      amountStr = `${t.before.toFixed(2)} → ${t.after.toFixed(2)}`
+    } else if(t.amount !== undefined){
+      amountStr = t.amount.toFixed(2)
+    }
+
+    const note = t.note || ''
     html+=`<tr>
       <td>${dt}</td>
-      <td>${t.phone || t.Phone}</td>
+      <td>${phone}</td>
       <td>${t.type}</td>
-      <td>${t.amount}</td>
-      <td>${t.note||''}</td>
+      <td>${amountStr}</td>
+      <td>${note}</td>
     </tr>`
   }
   html+='</tbody></table>'
   transList.innerHTML=html
 }
 
+// 儲存備註
 btnSaveNotes.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
   if(!phone) return alert('請先選擇或輸入會員')
@@ -390,14 +423,20 @@ btnSaveNotes.addEventListener('click', async ()=>{
   initFirestoreData()
 })
 
+// 匯出 CSV
 btnExportCSV.addEventListener('click', ()=>{
   if(!lastMembers.length) return alert('沒有會員可匯出')
   const rows=[['phone','name','balance']]
   for(const m of lastMembers) rows.push([m.Phone,m.Name,m.Balance])
   const csv = rows.map(r=> r.map(c=> '"'+(''+c).replace(/"/g,'""')+'"').join(',')).join('\n')
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'})
+  const blob = new Blob([csv],{type:'text/csv'})
   const url = URL.createObjectURL(blob)
-  const a=document.createElement('a'); a.href=url; a.download='vip_members.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
+  const a=document.createElement('a')
+  a.href=url; a.download='members.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 })
 </script>
 </body>
