@@ -12,6 +12,7 @@
     margin: 0;
     padding: 0;
   }
+
   header {
     position: fixed;
     top: 0; left: 0; width: 100%;
@@ -23,25 +24,33 @@
     margin: 0;
     color: #4a7c53;
   }
+
+  /* ✅ 可滑動導航列 */
   nav ul {
     list-style: none;
     display: flex;
     gap: 15px;
     padding: 10px 0 0 0;
     margin: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
+  nav li { flex: 0 0 auto; }
   nav a {
     text-decoration: none;
     color: #333;
     font-weight: bold;
     padding: 6px 10px;
     border-radius: 4px;
+    display: inline-block;
   }
   nav a:hover,
   nav a.active {
     background-color: #7bd8a2;
     color: white;
   }
+
   main {
     max-width: 600px;
     margin: 0 auto;
@@ -84,6 +93,7 @@
   button:hover {
     background-color: #5bb174;
   }
+
   footer {
     margin-top: 60px;
     background: #a8e6cf;
