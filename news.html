@@ -4,29 +4,59 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>最新消息 - 可莉兒 Hair Salon</title>
+
 <style>
-  body { font-family: Arial, sans-serif; background:#f9fff9; color:#333; margin:0; padding:0; }
+  body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
+
   header { background:#a8e6cf; padding:20px; }
   header h2 { margin:0; color:#4a7c53; }
-  nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; }
-  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
+
+  /* 導覽列可滑動 */
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:15px;
+    padding:10px 0 0;
+    margin:0;
+    overflow-x:auto;
+    white-space:nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  nav li { flex:0 0 auto; }
+  nav a {
+    text-decoration:none;
+    color:#333;
+    font-weight:bold;
+    padding:6px 10px;
+    border-radius:4px;
+    display:inline-block;
+  }
   nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
-  #banner { background:#ffe08a; padding:10px; text-align:center; font-weight:bold; }
-  #banner button { margin-left:12px; background:#4a7c53; color:#fff; border:none; padding:4px 8px; cursor:pointer; border-radius:4px; }
+  /* 公告橫幅 */
+  #banner { 
+    background:#ffe08a; 
+    padding:10px; 
+    text-align:center; 
+    margin-top:0px;
+  }
+  #banner button { margin-left:10px; background:#4a7c53; color:#fff; border:none; padding:4px 8px; cursor:pointer; border-radius:4px; }
 
-  main { max-width:700px; margin:40px auto; padding:0 20px; }
+  main { max-width:900px; margin:20px auto; padding:0 20px; }
   h1 { color:#4a7c53; margin-bottom:20px; text-align:center; }
-  
+
   article { background:#fff; border-radius:8px; padding:20px; margin-bottom:20px; box-shadow:0 1px 5px rgba(0,0,0,0.1); }
   article h3 { margin:0 0 8px; color:#3a6f45; }
   article time { display:block; font-size:0.85rem; color:#777; margin-bottom:10px; }
   article p { font-size:1rem; line-height:1.6; color:#444; }
 
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
-  footer a,
-  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
   footer a:hover { color:#4a7c53; }
+
+  /* 浮動按鈕 */
+  .fab { position:fixed; right:16px; bottom:16px; background:#7bd8a2; color:#fff; padding:12px 16px; border-radius:999px; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+  @media (min-width:992px){ .fab{display:none;} }
 </style>
 </head>
 <body>
@@ -48,13 +78,13 @@
 
 <!-- 公告橫幅 -->
 <div id="banner">
-  🚨 公告：9/28(日)～9/29(一) 全店公休  
+  <span>🎉 染燙 9 折優惠至 10/15 ｜ 9/28-9/29 公休</span>
   <button onclick="this.parentElement.remove()">關閉</button>
 </div>
 
 <main>
   <h1>最新消息</h1>
-  
+
   <article>
     <h3>春季限時優惠 - 8折剪髮體驗</h3>
     <time datetime="2025-09-01">發布日期：2025/09/01</time>
@@ -82,6 +112,8 @@
   <a href="https://www.facebook.com/" target="_blank">Facebook</a> ｜ 
   <a href="https://www.instagram.com/" target="_blank">Instagram</a>
 </footer>
+
+<a href="tel:0988528051" class="fab">📞 立即預約</a>
 
 </body>
 </html>
