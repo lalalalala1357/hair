@@ -6,11 +6,12 @@
 <title>可莉兒 Hair Salon｜溪湖剪髮・染髮・燙髮</title>
 
 <!-- SEO Meta -->
-<meta name="description" content="可莉兒 Hair Salon 專業美髮沙龍，提供剪髮、染髮、燙髮、護髮等服務。立即線上預約，設計師為你打造專屬造型。">
+<meta name="description" content="可莉兒 Hair Salon｜彰化溪湖專業美髮沙龍，提供剪髮、染髮、燙髮、護髮與造型設計。立即線上預約，打造專屬魅力造型。">
+<meta name="keywords" content="溪湖美髮, 溪湖剪髮, 溪湖染髮, 溪湖燙髮, 可莉兒 Hair Salon">
 <meta property="og:title" content="可莉兒 Hair Salon｜溪湖剪髮・染髮・燙髮">
 <meta property="og:description" content="立即線上預約，專業設計師為你打造合適造型。">
 <meta property="og:type" content="website">
-<meta property="og:image" content="images/og.jpg">
+<meta property="og:image" content="https://yourdomain.com/images/og.jpg">
 <meta property="og:url" content="https://yourdomain.com">
 
 <!-- Schema.org 結構化資料 -->
@@ -33,28 +34,47 @@
 </script>
 
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: Arial, sans-serif; background:#f9fff9; color:#333; line-height:1.6; }
-
+  body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
   header { background:#a8e6cf; padding:20px; }
   header h2 { margin:0; color:#4a7c53; }
-  nav ul { list-style:none; display:flex; gap:15px; margin:0; padding:10px 0 0; }
-  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; }
-  nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
+
+  /* ✅ 改成可橫向滑動的導航列 */
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:15px;
+    padding:10px 0 0;
+    margin:0;
+    overflow-x:auto;          /* 可左右滑動 */
+    white-space:nowrap;       /* 不換行 */
+    -webkit-overflow-scrolling: touch; /* iOS 順滑滾動 */
+  }
+  nav li { flex:0 0 auto; }   /* 防止自動壓縮 */
+  nav a {
+    text-decoration:none;
+    color:#333;
+    font-weight:bold;
+    padding:6px 10px;
+    border-radius:4px;
+    display:inline-block;
+  }
+  nav a:hover, nav a.active {
+    background:#7bd8a2;
+    color:#fff;
+  }
 
   #banner { background:#ffe08a; padding:10px; text-align:center; }
   #banner button { margin-left:10px; background:#4a7c53; color:#fff; border:none; padding:4px 8px; cursor:pointer; border-radius:4px; }
 
-  main { max-width:800px; margin:40px auto; padding:0 20px; }
+  main { max-width:900px; margin:40px auto; padding:0 20px; }
   h1, h2 { color:#4a7c53; margin-bottom:20px; }
 
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
-  footer a,
-  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
   footer a:hover { color:#4a7c53; }
 
   /* 浮動按鈕 */
-  .fab { position:fixed; right:16px; bottom:16px; background:#7bd8a2; color:#fff; padding:12px 16px; border-radius:999px; text-decoration:none; box-shadow:0 4px 16px rgba(0,0,0,.2); }
+  .fab { position:fixed; right:16px; bottom:16px; background:#7bd8a2; color:#fff; padding:12px 16px; border-radius:999px; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,.2); }
   @media (min-width:992px){ .fab{display:none;} }
 </style>
 </head>
