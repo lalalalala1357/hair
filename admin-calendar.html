@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>行事曆管理 - 可莉兒 Hair Salon</title>
 <style>
   :root{
@@ -48,6 +48,7 @@
     background:#7bd8a2;
     color:#fff;
   }
+
   #controls { 
     text-align:center; 
     margin:20px 0; 
@@ -79,16 +80,14 @@
   }
   .label { 
     position:absolute; 
-    top:4px; 
     right:4px; 
-    background:#ff5c5c; 
     color:#fff; 
     font-size:0.7rem; 
     padding:2px 4px; 
     border-radius:3px; 
   }
   button { 
-    margin:0 5px; 
+    margin:5px 5px 0 0; 
     padding:6px 12px; 
     background:#7bd8a2; 
     border:none; 
@@ -99,14 +98,96 @@
   button:hover { 
     background:#5bb174; 
   }
-  #error-msg {
-    text-align:center;
-    color:red;
+
+  /* Modal */
+  #appointmentModal {
+    display:none; 
+    position:fixed; 
+    top:50%; 
+    left:50%; 
+    transform:translate(-50%,-50%);
+    background:#fff; 
+    border:1px solid #ccc; 
+    padding:20px; 
+    border-radius:8px; 
+    max-width:420px; 
+    z-index:100; 
+    max-height:80vh; 
+    overflow-y:auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+  #appointmentModal h3 { margin-top:0; }
+  .apptRow { border-bottom:1px solid #ddd; padding:8px 0; display:flex; flex-direction:column; gap:4px; }
+  .apptRow span { display:block; }
+  .apptBtnGroup { display:flex; gap:5px; margin-top:4px; }
+  .apptRow button { padding:6px 10px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; transition: background 0.2s; }
+  .apptDone { background:#5cb85c; color:#fff; }
+  .apptDone:hover { background:#4cae4c; }
+  .apptCancel { background:#ff5c5c; color:#fff; }
+  .apptCancel:hover { background:#e04e4e; }
+  .apptDelete { background:#ccc; color:#333; }
+  .apptDelete:hover { background:#aaa; }
+
+  #modalOverlay {
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.3);
+    z-index:99;
+  }
+
+  /* 新增預約表單美化 */
+  #newApptForm {
+    margin-top:15px;
+    display: flex;
+    flex-direction: column;
+    gap:12px;
+  }
+
+  #newApptForm label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  #newApptForm input, #newApptForm select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+
+  #newApptForm input:focus, #newApptForm select:focus {
+    outline: none;
+    border-color: #7bd8a2;
+    box-shadow: 0 0 5px rgba(123,216,162,0.5);
+  }
+
+  /* 新增按鈕藍色 */
+  #addApptBtn {
+    background: #3399ff;
+    color: #fff;
     font-weight:bold;
-    margin-top:20px;
+    border-radius:6px;
+    cursor:pointer;
+    transition: background 0.2s;
+  }
+  #addApptBtn:hover {
+    background: #287acc;
+  }
+
+  #newApptForm button:last-child {
+    background: #ccc;
+    color: #333;
+  }
+
+  #newApptForm button:last-child:hover {
+    background: #aaa;
   }
 </style>
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
@@ -130,12 +211,35 @@
 </div>
 
 <div id="calendar"></div>
-<div id="error-msg"></div>
+
+<div id="modalOverlay"></div>
+
+<div id="appointmentModal">
+  <h3 id="modalDate"></h3>
+  <div id="modalContent"></div>
+
+  <hr>
+  <h4>新增預約</h4>
+  <div id="newApptForm">
+    <label>姓名:<input type="text" id="newName"></label>
+    <label>電話:<input type="text" id="newPhone"></label>
+    <label>時間:<select id="newTime"></select></label>
+    <label>服務:
+      <select id="newService">
+        <option value="男士剪髮">男士剪髮</option>
+        <option value="女士剪髮">女士剪髮</option>
+        <option value="水波紋燙髮">水波紋燙髮</option>
+        <option value="溫塑燙">溫塑燙</option>
+        <option value="護色染">護色染</option>
+        <option value="漸層染">漸層染</option>
+      </select>
+    </label>
+    <button id="addApptBtn">新增</button>
+    <button onclick="closeModal()">取消</button>
+  </div>
+</div>
 
 <script>
-  const errorMsg = document.getElementById('error-msg');
-
-  // ---------------- Firebase 初始化 ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
     authDomain: "hair-salon-56eb5.firebaseapp.com",
@@ -144,56 +248,31 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // ---------------- 全域變數 ----------------
   let appointments = {};
-  let members = {};
   let today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth();
+  let selectedDay = '';
   const weekDays = ['日','一','二','三','四','五','六'];
 
-  // ---------------- 載入會員資料 ----------------
-  async function loadMembers(){
-    try{
-      const snapshot = await db.collection('members').get();
-      members = {};
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        members[data.phone] = data;
-      });
-      console.log("會員載入成功", Object.keys(members).length);
-    } catch(e){
-      console.error("讀取會員資料失敗", e);
-      errorMsg.textContent = "⚠️ 讀取會員資料失敗，請檢查 Firestore 規則或網路連線";
-    }
-  }
-
-  // ---------------- 載入當月預約 ----------------
   async function loadAppointments(year, month){
-    try{
-      await loadMembers();
-      const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
-      const end = `${year}-${String(month+1).padStart(2,'0')}-31`;
-      const snapshot = await db.collection('appointments')
-        .where('date', '>=', start)
-        .where('date', '<=', end)
-        .get();
+    const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
+    const end = `${year}-${String(month+1).padStart(2,'0')}-31`;
+    const snapshot = await db.collection('appointments')
+      .where('date', '>=', start)
+      .where('date', '<=', end)
+      .get();
 
-      appointments = {};
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        if(!appointments[data.date]) appointments[data.date]=[];
-        appointments[data.date].push({...data, id: doc.id});
-      });
+    appointments = {};
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      if(!appointments[data.date]) appointments[data.date]=[];
+      appointments[data.date].push({...data, id: doc.id});
+    });
 
-      buildCalendar(year, month);
-    } catch(e){
-      console.error("讀取預約資料失敗", e);
-      errorMsg.textContent = "⚠️ 讀取預約資料失敗，請檢查 Firestore 規則或網路連線";
-    }
+    buildCalendar(year, month);
   }
 
-  // ---------------- 建立日曆 ----------------
   function buildCalendar(year, month){
     const calendar = document.getElementById('calendar');
     calendar.innerHTML='';
@@ -224,13 +303,29 @@
       cell.classList.add('calendar-cell');
       cell.textContent=d;
 
-      if(appointments[dayStr] && appointments[dayStr].length>0){
-        const label = document.createElement('div');
-        label.classList.add('label');
-        let count = appointments[dayStr].length;
-        const hasVIP = appointments[dayStr].some(a => members[a.memberId] && members[a.memberId].balance>0);
-        label.textContent = hasVIP ? `★${count}` : `${count}`;
-        cell.appendChild(label);
+      const dayAppts = appointments[dayStr] || [];
+      if(dayAppts.length > 0){
+        const completedCount = dayAppts.filter(a=>a.status==='已完成').length;
+        const pendingCount = dayAppts.filter(a=>a.status==='已預約').length;
+
+        let offset = 4;
+        if(pendingCount>0){
+          const label = document.createElement('div');
+          label.classList.add('label');
+          label.style.background='#ff5c5c';
+          label.style.top = offset + 'px';
+          label.textContent = pendingCount;
+          cell.appendChild(label);
+          offset += 18;
+        }
+        if(completedCount>0){
+          const label = document.createElement('div');
+          label.classList.add('label');
+          label.style.background='#5cb85c';
+          label.style.top = offset + 'px';
+          label.textContent = completedCount;
+          cell.appendChild(label);
+        }
       }
 
       cell.addEventListener('click', ()=>manageDay(dayStr));
@@ -238,74 +333,130 @@
     }
   }
 
-  // ---------------- 新增預約 ----------------
-  async function addAppointment(dayStr, name, phone, service, time){
-    if(!members[phone]){
-      const docRef = await db.collection('members').add({
-        phone,
-        name,
-        balance: 0,
-        note: '',
-        joinedAt: new Date()
-      });
-      members[phone] = {phone,name,balance:0,note:'',joinedAt:new Date()};
-    }
+  async function updateAppointmentStatus(apptId, newStatus){
+    await db.collection('appointments').doc(apptId).update({ status: newStatus });
+    closeModal();
+    loadAppointments(currentYear,currentMonth);
+  }
 
+  async function deleteAppointment(dayStr, index){
+    const appt = appointments[dayStr][index];
+    await db.collection('appointments').doc(appt.id).delete();
+    appointments[dayStr].splice(index,1);
+    if(appointments[dayStr].length===0) delete appointments[dayStr];
+    closeModal();
+    loadAppointments(currentYear,currentMonth);
+  }
+
+  function manageDay(dayStr){
+    selectedDay = dayStr;
+    const dayAppointments = appointments[dayStr] || [];
+    const modal = document.getElementById('appointmentModal');
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    const modalDate = document.getElementById('modalDate');
+    modalDate.textContent = `📅 ${dayStr} 的預約`;
+    content.innerHTML='';
+
+    dayAppointments.forEach((a,i)=>{
+      const row = document.createElement('div');
+      row.classList.add('apptRow');
+      row.innerHTML = `
+        <span>${a.time} - ${a.memberName} (${a.memberId})</span>
+        <span>服務: ${a.service}</span>
+        <span>狀態: ${a.status}</span>
+      `;
+
+      const btnGroup = document.createElement('div');
+      btnGroup.classList.add('apptBtnGroup');
+
+      const btnDone = document.createElement('button');
+      btnDone.textContent='完成';
+      btnDone.classList.add('apptDone');
+      btnDone.onclick = ()=>updateAppointmentStatus(a.id,'已完成');
+
+      const btnCancel = document.createElement('button');
+      btnCancel.textContent='取消預約';
+      btnCancel.classList.add('apptCancel');
+      btnCancel.onclick = ()=>updateAppointmentStatus(a.id,'已取消');
+
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent='刪除';
+      btnDelete.classList.add('apptDelete');
+      btnDelete.onclick = ()=>deleteAppointment(dayStr,i);
+
+      btnGroup.appendChild(btnDone);
+      btnGroup.appendChild(btnCancel);
+      btnGroup.appendChild(btnDelete);
+
+      row.appendChild(btnGroup);
+      content.appendChild(row);
+    });
+
+    populateTimeSelect();
+    document.getElementById('newName').value='';
+    document.getElementById('newPhone').value='';
+    document.getElementById('newService').selectedIndex=0;
+    document.getElementById('newTime').selectedIndex=0;
+
+    overlay.style.display='block';
+    modal.style.display='block';
+  }
+
+  function closeModal(){
+    document.getElementById('appointmentModal').style.display='none';
+    document.getElementById('modalOverlay').style.display='none';
+  }
+
+  function populateTimeSelect(){
+    const select = document.getElementById('newTime');
+    select.innerHTML='';
+    for(let h=9; h<=20; h++){
+      const t = String(h).padStart(2,'0') + ':00';
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      select.appendChild(opt);
+    }
+  }
+
+  document.getElementById('addApptBtn').addEventListener('click', async ()=>{
+    const name = document.getElementById('newName').value.trim();
+    const phone = document.getElementById('newPhone').value.trim();
+    const time = document.getElementById('newTime').value;
+    const service = document.getElementById('newService').value;
+    if(!name||!phone||!time||!service){ alert('請填寫完整'); return; }
+
+    const dayStr = selectedDay;
+    const conflict = (appointments[dayStr]||[]).some(a=>a.time===time);
+    if(conflict){ alert('此時段已被預約'); return; }
+
+    // 只寫入 appointments，不新增到 members
     const docRef2 = await db.collection('appointments').add({
       memberId: phone,
       memberName: name,
       service,
       date: dayStr,
       time,
-      status: '已預約',
-      note: '',
+      status:'已預約',
+      note:'',
       createdAt: new Date()
     });
 
     if(!appointments[dayStr]) appointments[dayStr]=[];
     appointments[dayStr].push({id: docRef2.id, memberId: phone, memberName:name, service, date:dayStr, time, status:'已預約'});
-    buildCalendar(currentYear,currentMonth);
-  }
 
-  // ---------------- 刪除預約 ----------------
-  async function deleteAppointment(dayStr, index){
-    const appt = appointments[dayStr][index];
-    await db.collection('appointments').doc(appt.id).delete();
-    appointments[dayStr].splice(index,1);
-    if(appointments[dayStr].length===0) delete appointments[dayStr];
-    buildCalendar(currentYear,currentMonth);
-  }
+    document.getElementById('newName').value='';
+    document.getElementById('newPhone').value='';
+    document.getElementById('newService').selectedIndex=0;
+    document.getElementById('newTime').selectedIndex=0;
 
-  // ---------------- 管理格子 ----------------
-  function manageDay(dayStr){
-    const dayAppointments = appointments[dayStr] || [];
-    let msg = `📅 ${dayStr} 的預約:\n\n`;
-    dayAppointments.forEach((a,i)=>{
-      let star = members[a.memberId] && members[a.memberId].balance>0 ? ' ★VIP' : '';
-      msg+=`${i+1}. ${a.time} - ${a.memberName} (${a.memberId})${star}\n 服務: ${a.service}\n`;
-    });
-    msg+='\n輸入:\n1 = 新增預約\n2 = 刪除預約\n取消 = 離開';
-    const action = prompt(msg);
-    if(action==='1'){
-      const name=prompt('姓名:'); if(!name) return;
-      const phone=prompt('電話:'); if(!phone) return;
-      const service=prompt('服務項目:'); if(!service) return;
-      const time=prompt('時間 (例如 10:00):'); if(!time) return;
-      addAppointment(dayStr,name,phone,service,time);
-    } else if(action==='2'){
-      if(dayAppointments.length===0){ alert('無預約可刪'); return; }
-      let delMsg='輸入要刪除的編號:\n';
-      dayAppointments.forEach((a,i)=>{
-        delMsg+=`${i+1}. ${a.time} - ${a.memberName} (${a.memberId})\n`;
-      });
-      const delIndex=parseInt(prompt(delMsg))-1;
-      if(!isNaN(delIndex) && dayAppointments[delIndex]){
-        deleteAppointment(dayStr,delIndex);
-      }
-    }
-  }
+    closeModal();
+    loadAppointments(currentYear,currentMonth);
+  });
 
-  // ---------------- 上下月 ----------------
+  document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
   document.getElementById('prevMonth').addEventListener('click', ()=>{
     currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
     loadAppointments(currentYear,currentMonth);
@@ -314,13 +465,10 @@
     currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; }
     loadAppointments(currentYear,currentMonth);
   });
-
-  // ---------------- 重新整理 ----------------
   document.getElementById('refreshBtn').addEventListener('click', ()=>{
     loadAppointments(currentYear,currentMonth);
   });
 
-  // ---------------- 初始載入 ----------------
   if(!localStorage.getItem('calendar_authenticated')){
     const password = prompt('請輸入管理密碼');
     if(password==='salon2025'){
@@ -334,7 +482,6 @@
     loadAppointments(currentYear,currentMonth);
   }
 
-  // ---------------- 即時監聽 ----------------
   db.collection('appointments').onSnapshot(()=>{
     loadAppointments(currentYear,currentMonth);
   });
