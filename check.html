@@ -56,6 +56,7 @@
 
   <!-- Firebase -->
   <script type="module">
+    // Firebase 初始化
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -64,12 +65,14 @@
       authDomain: "hair-salon-56eb5.firebaseapp.com",
       projectId: "hair-salon-56eb5",
       storageBucket: "hair-salon-56eb5.appspot.com",
-    messagingSenderId: "64472921085",
-    appId: "1:64472921085:web:78ba36b069597490625f94"
+      messagingSenderId: "64472921085",
+      appId: "1:64472921085:web:78ba36b069597490625f94"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 查詢餘額
     async function checkBalance() {
       const phone = document.getElementById("phone").value.trim();
       const result = document.getElementById("result");
