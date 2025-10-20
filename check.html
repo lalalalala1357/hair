@@ -50,16 +50,16 @@
     <h2>查詢儲值餘額</h2>
     <input type="text" id="phone" placeholder="請輸入您的手機號碼" />
     <br>
-    <button onclick="checkBalance()">查詢餘額</button>
+    <button id="checkBtn">查詢餘額</button>
     <div class="result" id="result"></div>
   </div>
 
   <!-- Firebase -->
   <script type="module">
-    // Firebase 初始化
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    // Firebase 設定
     const firebaseConfig = {
       apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
       authDomain: "hair-salon-56eb5.firebaseapp.com",
@@ -105,6 +105,9 @@
         console.error(err);
       }
     }
+
+    // 綁定按鈕事件，不用 inline onclick
+    document.getElementById("checkBtn").addEventListener("click", checkBalance);
   </script>
 </body>
 </html>
