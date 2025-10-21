@@ -25,7 +25,6 @@
     color: #4a7c53;
   }
 
-  /* ✅ 可滑動導航列 */
   nav ul {
     list-style: none;
     display: flex;
@@ -135,12 +134,10 @@
     <label for="service">服務項目</label>
     <select id="service" name="service" required>
       <option value="" disabled selected>請選擇服務</option>
-      <option value="男士剪髮">男士剪髮（約1小時）</option>
-      <option value="女士剪髮">女士剪髮（約1小時）</option>
-      <option value="水波紋燙髮">水波紋燙髮（約1小時）</option>
-      <option value="溫塑燙">溫塑燙（約1小時）</option>
-      <option value="護色染">護色染（約1小時）</option>
-      <option value="漸層染">漸層染（約1小時）</option>
+      <option value="剪髮">剪髮（約1小時）</option>
+      <option value="洗髮">洗髮（約1小時）</option>
+      <option value="燙髮">燙髮（約1小時）</option>
+      <option value="染髮">染髮（約1小時）</option>
     </select>
     
     <label for="date">日期</label>
@@ -156,6 +153,8 @@
       <option>15:00</option>
       <option>16:00</option>
       <option>17:00</option>
+      <option>18:00</option>
+      <option>19:00</option>
     </select>
     
     <label for="name">姓名</label>
@@ -191,7 +190,38 @@
   const db = firebase.firestore();
 
   const bookingForm = document.getElementById('booking-form');
+  const dateInput = document.getElementById('date');
+  const timeSelect = document.getElementById('time');
+  const allTimes = ["10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
+  // 當選擇日期時，更新時間選單
+  dateInput.addEventListener('change', async () => {
+    const selectedDate = dateInput.value;
+    if (!selectedDate) return;
+
+    const snapshot = await db.collection('appointments')
+      .where('date', '==', selectedDate)
+      .get();
+
+    const bookedTimes = snapshot.docs.map(doc => doc.data().time);
+
+    timeSelect.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+    allTimes.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+
+      if (bookedTimes.includes(time)) {
+        option.disabled = true;
+        option.style.color = '#ccc';
+      }
+
+      timeSelect.appendChild(option);
+    });
+  });
+
+  // 送出預約前再次檢查時間是否已被預約
   bookingForm.addEventListener('submit', async e => {
     e.preventDefault();
 
@@ -201,25 +231,30 @@
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
 
-    try {
-      // 將預約寫入 Firestore 的 appointments 集合
-      await db.collection('appointments').add({
-        memberName: name,
-        memberId: phone,
-        service: service,
-        date: date,
-        time: time,
-        status: '已預約',
-        note: '',
-        createdAt: new Date()
-      });
+    const snapshot = await db.collection('appointments')
+      .where('date', '==', date)
+      .where('time', '==', time)
+      .get();
 
-      alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
-      bookingForm.reset();
-    } catch (err) {
-      console.error(err);
-      alert('❌ 預約送出失敗，請稍後再試。');
+    if (!snapshot.empty) {
+      alert("❌ 此時間已被預約，請選擇其他時段");
+      return;
     }
+
+    await db.collection('appointments').add({
+      memberName: name,
+      memberId: phone,
+      service: service,
+      date: date,
+      time: time,
+      status: '已預約',
+      note: '',
+      createdAt: new Date()
+    });
+
+    alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
+    bookingForm.reset();
+    timeSelect.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
   });
 </script>
 
