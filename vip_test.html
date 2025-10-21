@@ -5,13 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>VIP 管理 - 可莉兒 Hair Salon</title>
 <style>
-:root{--bg:#f7fff7;--card:#ffffff;--accent:#a8e6cf;--muted:#666;--btn:#ccc}
-body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0}
-header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
-header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
-nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;}
-nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
-nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+:root{
+  --bg:#f7fff7;
+  --card:#ffffff;
+  --accent:#a8e6cf;
+  --muted:#666;
+  --btn:#ccc;
+}
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  margin:0;
+  padding:0;
+}
+header{
+  background:#a8e6cf;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1{
+  margin:0;
+  color:#4a7c53;
+  font-weight:bold;
+  font-size:18px;
+}
+nav ul{
+  list-style:none;
+  display:flex;
+  gap:12px;
+  margin:0;
+  padding:0;
+  overflow-x:auto;
+  white-space:nowrap;
+  -webkit-overflow-scrolling:touch;
+}
+nav a{
+  text-decoration:none;
+  color:#333;
+  font-weight:bold;
+  padding:6px 12px;
+  border-radius:4px;
+  flex-shrink:0;
+}
+nav a:hover, nav a.active{
+  background:#7bd8a2;
+  color:#fff;
+}
 .container{max-width:1100px;margin:18px auto}
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .card{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
@@ -38,19 +80,20 @@ td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 <body>
 
 <header>
-<h1>可莉兒 Hair Salon</h1>
-<nav>
-<ul>
-<li><a href="#" class="active">VIP 管理</a></li>
-<li><a href="admin-calendar.html">行事曆管理</a></li>
-</ul>
-</nav>
+  <h1>可莉兒 Hair Salon - 管理後台</h1>
+  <nav>
+    <ul>
+      <li><a href="admin-calendar.html">行事曆管理</a></li>
+      <li><a href="vip_test.html" class="active">VIP管理</a></li>
+      <li><a href="admin-news.html">公告管理</a></li>
+    </ul>
+  </nav>
 </header>
 
 <div class="container">
 <!-- 登入卡 -->
 <div id="loginCard" class="card" style="margin-top:12px;max-width:520px">
-<h3>請輸入管理密碼（單機測試，隨便輸入都可登入）</h3>
+<h3>請輸入管理密碼</h3>
 <div class="topbar">
 <input id="adminPassword" placeholder="輸入管理密碼" type="password" />
 <button id="btnLogin">登入</button>
@@ -125,50 +168,47 @@ const ADMIN_FLAG = 'vip_admin_ok_v1'
 let lastMembers = []
 let lastTrans = []
 
+// TODO: 換成你自己的 Firebase 設定
 const firebaseConfig = {
-apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-authDomain: "hair-salon-56eb5.firebaseapp.com",
-projectId: "hair-salon-56eb5",
-storageBucket: "hair-salon-56eb5.appspot.com",
-messagingSenderId: "64472921085",
-appId: "1:64472921085:web:78ba36b069597490625f94"
+  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+  authDomain: "hair-salon-56eb5.firebaseapp.com",
+  projectId: "hair-salon-56eb5"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db = firebase.firestore()
 
+// 元件
 const loginCard = document.getElementById('loginCard')
 const mainUI = document.getElementById('mainUI')
 const btnLogin = document.getElementById('btnLogin')
 const toast = document.getElementById('toast')
-
 const phoneInput = document.getElementById('phoneInput')
 const nameInput = document.getElementById('nameInput')
 const balanceInput = document.getElementById('balanceInput')
 const btnAdd = document.getElementById('btnAdd')
 const btnUpdate = document.getElementById('btnUpdate')
 const btnClear = document.getElementById('btnClear')
-
 const searchPhone = document.getElementById('searchPhone')
 const btnSearch = document.getElementById('btnSearch')
 const btnShowAll = document.getElementById('btnShowAll')
 const memberList = document.getElementById('memberList')
-
 const rechargeAmount = document.getElementById('rechargeAmount')
 const deductAmount = document.getElementById('deductAmount')
 const btnRecharge = document.getElementById('btnRecharge')
 const btnDeduct = document.getElementById('btnDeduct')
-
 const transList = document.getElementById('transList')
 const notesBox = document.getElementById('notesBox')
 const btnSaveNotes = document.getElementById('btnSaveNotes')
 const btnExportCSV = document.getElementById('btnExportCSV')
 
+// Toast
 function showToast(msg='已儲存', time=2000){
   toast.textContent = msg
   toast.classList.remove('hidden')
   setTimeout(()=>toast.classList.add('hidden'), time)
 }
 
+// 登入
 function checkLogin(){
   if(localStorage.getItem(ADMIN_FLAG)){
     loginCard.classList.add('hidden')
@@ -177,15 +217,16 @@ function checkLogin(){
   }
 }
 checkLogin()
-
 btnLogin.addEventListener('click', ()=>{
+  const pw = document.getElementById('adminPassword').value
+  if(!pw) return alert('請輸入密碼')
   localStorage.setItem(ADMIN_FLAG,'1')
   loginCard.classList.add('hidden')
   mainUI.classList.remove('hidden')
   initFirestoreData()
 })
 
-// 讀取會員與交易資料
+// Firestore 讀取會員與交易紀錄
 async function initFirestoreData(){
   try{
     const snapshot = await db.collection('members').get()
@@ -200,18 +241,11 @@ async function initFirestoreData(){
       })
     }
 
-    // 交易排序：最新在上
     lastTrans.sort((a,b)=>{
       const tA = a.createdAt?.seconds ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()
       const tB = b.createdAt?.seconds ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()
       return tB - tA
     })
-
-    const lastPhone = localStorage.getItem('lastSelectedPhone')
-    if(lastPhone){
-      const idx = lastMembers.findIndex(m=>m.Phone===lastPhone)
-      if(idx>=0) populateFormForEdit(lastPhone)
-    }
 
     renderMemberList(lastMembers)
     renderTransList(lastTrans)
@@ -232,19 +266,19 @@ btnAdd.addEventListener('click', async ()=>{
   await memberRef.set({
     Name:name,
     Phone:phone,
-    Balance:bal || 0,
-    Note: '',
-    JoinedAt: new Date()
+    Balance:bal,
+    Note:'',
+    JoinedAt:new Date()
   })
 
   await memberRef.collection('transactions').add({
     type:'create',
-    amount: bal,
-    before: 0,
-    after: bal,
+    amount:bal,
+    before:0,
+    after:bal,
     note:'新增會員',
-    Phone: phone,
-    createdAt: new Date()
+    Phone:phone,
+    createdAt:new Date()
   })
 
   showToast('會員已新增')
@@ -252,12 +286,12 @@ btnAdd.addEventListener('click', async ()=>{
   initFirestoreData()
 })
 
+// 清空表單
 btnClear.addEventListener('click', clearForm)
 function clearForm(){
   phoneInput.value=''; nameInput.value=''; balanceInput.value='';
   btnUpdate.classList.add('hidden'); btnAdd.classList.remove('hidden')
   notesBox.value=''
-  localStorage.removeItem('lastSelectedPhone')
 }
 
 // 搜尋 / 顯示所有
@@ -289,8 +323,8 @@ btnUpdate.addEventListener('click', async ()=>{
   await db.collection('members').doc(phone).collection('transactions').add({
     type:'edit',
     amount:bal,
-    before: 0,
-    after: bal,
+    before:0,
+    after:bal,
     note:'更新會員資料',
     Phone: phone,
     createdAt: new Date()
@@ -304,18 +338,23 @@ btnUpdate.addEventListener('click', async ()=>{
 // 儲值 / 扣款
 btnRecharge.addEventListener('click', ()=>transactionChange('recharge'))
 btnDeduct.addEventListener('click', ()=>transactionChange('deduct'))
-
 async function transactionChange(mode){
   const phone = searchPhone.value.trim() || phoneInput.value.trim()
-  if(!phone) return alert('請在搜尋或表單中選擇會員')
+  if(!phone) return alert('請選擇會員')
   const amt = parseFloat(mode==='recharge'?rechargeAmount.value:deductAmount.value)
-  if(!amt||isNaN(amt)) return alert('請輸入正確金額')
+  if(!amt||isNaN(amt)) return alert('請輸入金額')
 
   const memberRef = db.collection('members').doc(phone)
   const docSnap = await memberRef.get()
   if(!docSnap.exists) return alert('找不到會員')
 
   const cur = docSnap.data().Balance || 0
+
+  // 新增：扣款不能超過餘額
+  if(mode==='deduct' && amt > cur){
+    return alert(`扣款金額 (${amt.toFixed(2)}) 超過目前餘額 (${cur.toFixed(2)})，請先讓客戶儲值！`)
+  }
+
   const newBal = mode==='recharge'?cur+amt:cur-amt
 
   await memberRef.update({ Balance:newBal })
@@ -326,7 +365,7 @@ async function transactionChange(mode){
     after:newBal,
     note: mode==='recharge'?'手動儲值':'手動扣款',
     Phone: phone,
-    createdAt: new Date()
+    createdAt:new Date()
   })
 
   showToast(mode==='recharge'?'已儲值':'已扣款')
@@ -369,7 +408,7 @@ function renderMemberList(list){
   }))
 }
 
-// 填入編輯表單
+// 編輯表單填入
 function populateFormForEdit(phone){
   const idx = lastMembers.findIndex(m=>m.Phone===phone)
   if(idx<0) return alert('找不到會員')
@@ -379,10 +418,9 @@ function populateFormForEdit(phone){
   balanceInput.value = m.Balance
   notesBox.value = m.Note || ''
   btnUpdate.classList.remove('hidden'); btnAdd.classList.add('hidden')
-  localStorage.setItem('lastSelectedPhone', phone)
 }
 
-// 渲染交易紀錄 (依時間排序，最新在上)
+// 交易紀錄
 function renderTransList(list){
   if(!list.length){ 
     transList.innerHTML='<div class="small muted">目前無交易紀錄</div>'; 
@@ -391,22 +429,13 @@ function renderTransList(list){
   let html='<table><thead><tr><th>時間</th><th>電話</th><th>類型</th><th>金額</th><th>備註</th></tr></thead><tbody>'
   for(const t of list){
     const dt = t.createdAt?.seconds ? t.createdAt.toDate().toLocaleString() : new Date(t.createdAt).toLocaleString()
-    const phone = t.Phone || t.phone || '未知'
-
-    let amountStr = ''
-    if(t.before !== undefined && t.after !== undefined){
-      amountStr = `${t.before.toFixed(2)} → ${t.after.toFixed(2)}`
-    } else if(t.amount !== undefined){
-      amountStr = t.amount.toFixed(2)
-    }
-
-    const note = t.note || ''
+    let amountStr = t.before !== undefined && t.after !== undefined ? `${t.before.toFixed(2)} → ${t.after.toFixed(2)}` : t.amount?.toFixed(2) || ''
     html+=`<tr>
       <td>${dt}</td>
-      <td>${phone}</td>
+      <td>${t.Phone}</td>
       <td>${t.type}</td>
       <td>${amountStr}</td>
-      <td>${note}</td>
+      <td>${t.note||''}</td>
     </tr>`
   }
   html+='</tbody></table>'
@@ -416,27 +445,26 @@ function renderTransList(list){
 // 儲存備註
 btnSaveNotes.addEventListener('click', async ()=>{
   const phone = phoneInput.value.trim()
-  if(!phone) return alert('請先選擇或輸入會員')
+  if(!phone) return alert('請選擇會員')
   const note = notesBox.value
   await db.collection('members').doc(phone).update({ Note: note })
-  showToast('備註已儲存（本會員）')
+  showToast('備注已儲存')
   initFirestoreData()
 })
 
 // 匯出 CSV
 btnExportCSV.addEventListener('click', ()=>{
-  if(!lastMembers.length) return alert('沒有會員可匯出')
-  const rows=[['phone','name','balance']]
-  for(const m of lastMembers) rows.push([m.Phone,m.Name,m.Balance])
-  const csv = rows.map(r=> r.map(c=> '"'+(''+c).replace(/"/g,'""')+'"').join(',')).join('\n')
-  const blob = new Blob([csv],{type:'text/csv'})
-  const url = URL.createObjectURL(blob)
-  const a=document.createElement('a')
-  a.href=url; a.download='members.csv'
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  if(!lastMembers.length){ alert('無會員資料'); return }
+  let csv = '電話,姓名,餘額,備註,加入時間\n'
+  lastMembers.forEach(m=>{
+    const joined = m.JoinedAt?.seconds ? m.JoinedAt.toDate().toLocaleString() : (m.JoinedAt || '')
+    csv += `${m.Phone||''},${m.Name||''},${m.Balance||0},${m.Note||''},${joined}\n`
+  })
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = 'VIP會員資料.csv'
+  link.click()
 })
 </script>
 </body>
