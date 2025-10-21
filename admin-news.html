@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>公告管理 - 可莉兒 Hair Salon</title>
+<style>
+:root{
+  --bg:#f7fff7;
+  --card:#ffffff;
+  --accent:#a8e6cf;
+  --muted:#666;
+  --btn:#ccc;
+}
+body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0;color:#333}
+
+header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
+nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling: touch;}
+nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
+nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+
+.container{max-width:900px;margin:20px auto;padding:0 20px;}
+h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
+.card{background:var(--card);border-radius:8px;padding:20px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.1);position:relative;}
+.card h3{margin:0 0 8px;color:#3a6f45;}
+.card time{display:block;font-size:0.85rem;color:#777;margin-bottom:10px;}
+.card p{font-size:1rem;line-height:1.6;color:#444;}
+.card .actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;}
+.card .actions button{background:#7bd8a2;color:#fff;border:none;padding:4px 8px;cursor:pointer;border-radius:4px;}
+.card .actions button.delete{background:#ff7c7c;}
+
+#addForm, #bannerForm{background:#ffffff;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 1px 5px rgba(0,0,0,0.1);}
+#addForm input, #addForm textarea, #bannerForm input, #bannerForm textarea{width:100%;margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;}
+#addForm label, #bannerForm label{font-weight:bold;margin-bottom:4px;display:block;}
+#addForm button, #bannerForm button{background:#4a7c53;color:#fff;border:none;padding:10px 16px;cursor:pointer;border-radius:6px;}
+
+.toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;padding:10px 14px;border-radius:8px}
+.hidden{display:none}
+
+/* 前端橫幅示範 */
+#bannerDisplay{background:#ffe08a;color:#333;padding:12px 16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+#bannerDisplay button{background:#4a7c53;color:#fff;border:none;padding:4px 8px;cursor:pointer;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>可莉兒 Hair Salon - 管理後台</h1>
+  <nav>
+    <ul>
+      <li><a href="admin-calendar.html">行事曆管理</a></li>
+      <li><a href="vip_test.html">VIP管理</a></li>
+      <li><a href="admin-news.html" class="active">公告管理</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- 密碼登入 -->
+  <div id="loginCard" class="card">
+    <h3>請輸入管理密碼</h3>
+    <input type="password" id="adminPassword" placeholder="管理密碼">
+    <button id="btnLogin">登入</button>
+  </div>
+
+  <!-- 主畫面 -->
+  <div id="mainUI" class="hidden">
+
+    <!-- 橫幅公告單獨編輯 -->
+    <div id="bannerForm" class="card">
+      <h3>橫幅公告 (單一)</h3>
+      <label>標題</label>
+      <input type="text" id="bannerTitle" placeholder="橫幅標題">
+      <label>內容</label>
+      <textarea id="bannerContent" rows="2" placeholder="橫幅內容"></textarea>
+      <button id="btnBannerSave">儲存橫幅</button>
+    </div>
+
+    <!-- 新增一般公告表單 -->
+    <div id="addForm">
+      <h3>新增 / 編輯公告</h3>
+      <label>標題</label>
+      <input type="text" id="titleInput" placeholder="公告標題">
+      <label>內容</label>
+      <textarea id="contentInput" rows="4" placeholder="公告內容"></textarea>
+      <label><input type="checkbox" id="pinnedInput"> 置頂公告</label>
+      <div style="margin-top:8px;">
+        <button id="btnAdd">新增公告</button>
+        <button id="btnUpdate" class="hidden">更新公告</button>
+        <button id="btnClear">清除表單</button>
+      </div>
+    </div>
+
+    <!-- 公告列表 -->
+    <div id="articles"></div>
+
+  </div>
+
+</div>
+
+<div id="toast" class="toast hidden">已儲存</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+  authDomain: "hair-salon-56eb5.firebaseapp.com",
+  projectId: "hair-salon-56eb5",
+  storageBucket: "hair-salon-56eb5.firebasestorage.app",
+  messagingSenderId: "64472921085",
+  appId: "1:64472921085:web:78ba36b069597490625f94",
+  measurementId: "G-Z5224KYPR7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+<script>
+const ADMIN_PASSWORD = "1234";
+const loginCard = document.getElementById('loginCard');
+const mainUI = document.getElementById('mainUI');
+const btnLogin = document.getElementById('btnLogin');
+
+const titleInput = document.getElementById('titleInput');
+const contentInput = document.getElementById('contentInput');
+const pinnedInput = document.getElementById('pinnedInput');
+const btnAdd = document.getElementById('btnAdd');
+const btnUpdate = document.getElementById('btnUpdate');
+const btnClear = document.getElementById('btnClear');
+
+const bannerTitle = document.getElementById('bannerTitle');
+const bannerContent = document.getElementById('bannerContent');
+const btnBannerSave = document.getElementById('btnBannerSave');
+
+const articlesDiv = document.getElementById('articles');
+const toast = document.getElementById('toast');
+
+let editingDocId = null;
+
+function showToast(msg='已儲存', time=2000){
+  toast.textContent = msg;
+  toast.classList.remove('hidden');
+  setTimeout(()=>toast.classList.add('hidden'), time);
+}
+
+// 登入檢查
+btnLogin.addEventListener('click', ()=>{
+  const val = document.getElementById('adminPassword').value;
+  if(val !== ADMIN_PASSWORD){
+    alert("密碼錯誤");
+    return;
+  }
+  loginCard.classList.add('hidden');
+  mainUI.classList.remove('hidden');
+  loadBanner();
+  loadAnnouncements();
+});
+
+// ---------- 橫幅公告 ----------
+async function loadBanner(){
+  const doc = await db.collection("banner").doc("main").get();
+  if(doc.exists){
+    const data = doc.data();
+    bannerTitle.value = data.title || "";
+    bannerContent.value = data.content || "";
+  }
+}
+btnBannerSave.addEventListener('click', async ()=>{
+  const title = bannerTitle.value.trim();
+  const content = bannerContent.value.trim();
+  await db.collection("banner").doc("main").set({title, content});
+  showToast("橫幅公告已儲存");
+});
+
+// ---------- 一般公告列表 ----------
+btnClear.addEventListener('click', ()=>{
+  titleInput.value=''; contentInput.value=''; pinnedInput.checked=false;
+  editingDocId=null;
+  btnUpdate.classList.add('hidden'); btnAdd.classList.remove('hidden');
+});
+
+async function loadAnnouncements(){
+  articlesDiv.innerHTML="";
+  const snapshot = await db.collection("announcements")
+    .orderBy("pinned","desc")
+    .orderBy("createdAt","desc")
+    .get();
+  snapshot.forEach((doc)=>{
+    const data = doc.data();
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `
+      <h3>${data.title}</h3>
+      <time>${data.createdAt?.toDate().toLocaleDateString() || ""}</time>
+      <p>${data.content}</p>
+      <div class="actions">
+        <button class="edit">✏️ 編輯</button>
+        <button class="delete">🗑️ 刪除</button>
+      </div>
+    `;
+    articlesDiv.appendChild(card);
+
+    card.querySelector('.edit').onclick = ()=>{
+      titleInput.value = data.title;
+      contentInput.value = data.content;
+      pinnedInput.checked = data.pinned || false;
+      editingDocId = doc.id;
+      btnUpdate.classList.remove('hidden');
+      btnAdd.classList.add('hidden');
+    };
+
+    card.querySelector('.delete').onclick = async ()=>{
+      if(confirm("確定要刪除這則公告嗎？")){
+        await db.collection("announcements").doc(doc.id).delete();
+        showToast("公告已刪除");
+        loadAnnouncements();
+      }
+    };
+  });
+}
+
+// 新增公告
+btnAdd.addEventListener('click', async ()=>{
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+  const pinned = pinnedInput.checked;
+  if(!title || !content){ alert("請輸入標題與內容"); return; }
+
+  await db.collection("announcements").add({
+    title, content, pinned, createdAt: firebase.firestore.Timestamp.now()
+  });
+  showToast("公告已新增");
+  btnClear.click();
+  loadAnnouncements();
+});
+
+// 更新公告
+btnUpdate.addEventListener('click', async ()=>{
+  if(!editingDocId) return;
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+  const pinned = pinnedInput.checked;
+  if(!title || !content){ alert("請輸入標題與內容"); return; }
+
+  await db.collection("announcements").doc(editingDocId).update({
+    title, content, pinned
+  });
+  showToast("公告已更新");
+  btnClear.click();
+  loadAnnouncements();
+});
+</script>
+</body>
+</html>
