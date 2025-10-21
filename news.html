@@ -7,16 +7,26 @@
 
 <style>
   body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
+  
+  /* Header */
+  header {
+    background:#a8e6cf;
+    padding:20px;
+    display:flex;
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+  header h2 {
+    margin:0 0 10px 0;
+    color:#4a7c53;
+  }
 
-  header { background:#a8e6cf; padding:20px; }
-  header h2 { margin:0; color:#4a7c53; }
-
-  /* 導覽列可滑動 */
+  /* 導航列 */
   nav ul {
     list-style:none;
     display:flex;
     gap:15px;
-    padding:10px 0 0;
+    padding:0;
     margin:0;
     overflow-x:auto;
     white-space:nowrap;
@@ -33,14 +43,32 @@
   }
   nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
-  /* 公告橫幅 */
-  #banner { 
-    background:#ffe08a; 
-    padding:10px; 
-    text-align:center; 
-    margin-top:0px;
+  /* 橫幅公告 */
+  #bannerDisplay{
+    background:#ffe08a;
+    color:#333;
+    padding:12px 16px;
+    border-radius:8px;
+    margin:0 auto;             /* 緊貼導航列 */
+    max-width:900px;
+    display:flex;
+    justify-content:center;     /* 文字置中 */
+    align-items:center;
+    position:relative;          /* 按鈕絕對定位 */
+    box-shadow:0 1px 4px rgba(0,0,0,0.15);
+    font-weight:bold;
+    text-align:center;
   }
-  #banner button { margin-left:10px; background:#4a7c53; color:#fff; border:none; padding:4px 8px; cursor:pointer; border-radius:4px; }
+  #bannerDisplay button{
+    position:absolute;
+    right:16px;
+    background:#4a7c53;
+    color:#fff;
+    border:none;
+    padding:4px 8px;
+    cursor:pointer;
+    border-radius:4px;
+  }
 
   main { max-width:900px; margin:20px auto; padding:0 20px; }
   h1 { color:#4a7c53; margin-bottom:20px; text-align:center; }
@@ -50,11 +78,13 @@
   article time { display:block; font-size:0.85rem; color:#777; margin-bottom:10px; }
   article p { font-size:1rem; line-height:1.6; color:#444; }
 
+  .error { color:red; text-align:center; margin-top:20px; }
+  .hidden { display:none; }
+
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
   footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
   footer a:hover { color:#4a7c53; }
 
-  /* 浮動按鈕 */
   .fab { position:fixed; right:16px; bottom:16px; background:#7bd8a2; color:#fff; padding:12px 16px; border-radius:999px; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,.2); }
   @media (min-width:992px){ .fab{display:none;} }
 </style>
@@ -76,32 +106,16 @@
   </nav>
 </header>
 
-<!-- 公告橫幅 -->
-<div id="banner">
-  <span>🎉 染燙 9 折優惠至 10/15 ｜ 9/28-9/29 公休</span>
-  <button onclick="this.parentElement.remove()">關閉</button>
+<!-- 橫幅公告 -->
+<div id="bannerDisplay" class="hidden">
+  <span id="bannerText"></span>
+  <button onclick="document.getElementById('bannerDisplay').style.display='none'">關閉</button>
 </div>
 
 <main>
   <h1>最新消息</h1>
-
-  <article>
-    <h3>春季限時優惠 - 8折剪髮體驗</h3>
-    <time datetime="2025-09-01">發布日期：2025/09/01</time>
-    <p>2025年9月1日至9月30日，凡預約剪髮服務，享有八折優惠，歡迎新舊顧客把握機會！</p>
-  </article>
-
-  <article>
-    <h3>中秋節特別活動</h3>
-    <time datetime="2025-09-15">發布日期：2025/09/15</time>
-    <p>9月中秋節期間，來店染髮即贈送護髮組合一份，數量有限，送完為止。</p>
-  </article>
-
-  <article>
-    <h3>開幕週年慶</h3>
-    <time datetime="2025-10-01">發布日期：2025/10/01</time>
-    <p>感謝大家支持，可莉兒 Hair Salon 將於10月舉辦周年慶活動，屆時有更多驚喜優惠，敬請期待！</p>
-  </article>
+  <div id="articles"></div>
+  <div id="error" class="error hidden">公告載入失敗，請稍後再試</div>
 </main>
 
 <footer>
@@ -116,5 +130,66 @@
 
 <a href="tel:0988528051" class="fab">📞 立即預約</a>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+  authDomain: "hair-salon-56eb5.firebaseapp.com",
+  projectId: "hair-salon-56eb5",
+  storageBucket: "hair-salon-56eb5.firebasestorage.app",
+  messagingSenderId: "64472921085",
+  appId: "1:64472921085:web:78ba36b069597490625f94",
+  measurementId: "G-Z5224KYPR7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const articlesDiv = document.getElementById("articles");
+const errorDiv = document.getElementById("error");
+const bannerDiv = document.getElementById("bannerDisplay");
+const bannerText = document.getElementById("bannerText");
+
+async function loadBanner(){
+  const doc = await db.collection("banner").doc("main").get();
+  if(doc.exists){
+    const data = doc.data();
+    bannerText.textContent = data.title ? `${data.title}｜${data.content}` : data.content;
+    bannerDiv.classList.remove("hidden");
+  }
+}
+
+async function loadAnnouncements(){
+  articlesDiv.innerHTML = "";
+  errorDiv.classList.add("hidden");
+  try {
+    const snapshot = await db.collection("announcements")
+      .orderBy("pinned","desc")
+      .orderBy("createdAt","desc")
+      .get();
+    if(snapshot.empty){
+      articlesDiv.innerHTML = "<p style='text-align:center;'>目前沒有公告</p>";
+      return;
+    }
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const article = document.createElement("article");
+      article.innerHTML = `
+        <h3>${data.title}</h3>
+        <time>${data.createdAt?.toDate().toLocaleDateString() || ""}</time>
+        <p>${data.content}</p>
+      `;
+      articlesDiv.appendChild(article);
+    });
+  } catch(e){
+    console.error(e);
+    errorDiv.classList.remove("hidden");
+  }
+}
+
+// 載入橫幅 + 公告
+loadBanner();
+loadAnnouncements();
+</script>
 </body>
 </html>
