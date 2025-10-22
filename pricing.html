@@ -28,10 +28,43 @@
 
   /* 標籤顏色 */
   .tag { position:absolute; top:15px; right:15px; color:#fff; font-size:0.8rem; padding:4px 8px; border-radius:6px; }
-  .tag剪髮 { background: #6ab04c; }   /* 剪髮綠色 */
-  .tag染髮 { background: #e056fd; }   /* 染髮紫色 */
-  .tag燙髮 { background: #ff7979; }   /* 燙髮紅色 */
-  .tag洗護髮 { background: #f9ca24; }   /* 護髮黃色 */
+  .tag剪髮 { background: #6ab04c; }   
+  .tag染髮 { background: #e056fd; }   
+  .tag燙髮 { background: #ff7979; }   
+  .tag洗護髮 { background: #f9ca24; }   
+
+  /* 浮動按鈕 */
+  .float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background:#4a7c53;
+    color:#fff;
+    border:none;
+    border-radius:50px;
+    padding:15px 20px;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+  .float-btn:hover { background:#3b5f40; }
+
+  /* 彈窗樣式 */
+  #calcModal {
+    display:none;
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:2000;
+  }
+  #calcModal .modal-content {
+    background:#fff; padding:20px; border-radius:12px; max-width:350px; width:90%;
+    max-height:70vh; overflow-y:auto;
+  }
+  #calcModal h3 { margin-top:0; text-align:center; color:#4a7c53; }
+  #calcModal label { display:block; margin-bottom:5px; cursor:pointer; }
+  #calcModal .extra-options { margin-left:15px; }
+  #calcModal button { margin-top:10px; padding:8px 15px; cursor:pointer; border:none; border-radius:6px; background:#4a7c53; color:#fff; }
+  #calcModal button:hover { background:#3b5f40; }
 
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
   footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
@@ -70,19 +103,6 @@
       </ul>
     </div>
 
-    <!-- 染髮 -->
-    <div class="card">
-      <span class="tag tag染髮">染髮</span>
-      <h3>染髮</h3>
-      <ul>
-        <li>短髮 (XS):800元 → 優惠價650元</li>
-        <li>碰肩 (S):1000元 → 優惠價800元</li>
-        <li>中長 (M):1200元 → 優惠價1000元</li>
-        <li>長髮 (L):1500元 → 優惠價1200元</li>
-        <li>特長 (XL):1800元 → 優惠價1500元</li>
-      </ul>
-    </div>
-
     <!-- 燙髮 -->
     <div class="card">
       <span class="tag tag燙髮">燙髮</span>
@@ -94,35 +114,39 @@
       </ul>
     </div>
 
-    <!-- 護髮/洗髮 -->
+    <!-- 染髮 -->
+    <div class="card">
+      <span class="tag tag染髮">染髮</span>
+      <h3>染髮</h3>
+
+      <ul>
+        <li>短髮 (XS):800元 → 優惠價650元</li>
+        <li>碰肩 (S):1000元 → 優惠價800元</li>
+        <li>中長 (M):1200元 → 優惠價1000元</li>
+        <li>長髮 (L):1500元 → 優惠價1200元</li>
+        <li>特長 (XL):1800元 → 優惠價1500元</li>
+      </ul>
+      <!-- 頭髮長度示意圖 -->
+      <img src="images/service-women.jpg" alt="頭髮長度參考" 
+      style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-top:10px;">
+    </div>
+
     <!-- 護髮/洗髮 -->
     <div class="card">
       <span class="tag tag洗護髮">洗護髮</span>
       <h3>洗髮 / 護髮</h3>
-
-      <li>優質洗髮:200元(長髮+50元)</li>
-          <ul>
-            <li>瞬間護髮加購(僅限優質洗髮):
-              <ul>
-                <li>短髮50元 / 長髮100元 / V2調理200元</li>
-              </ul>
-            </li>
-          </ul>
-
       <ul>
-
-        <li>SPA洗髮:350元起</li>
-
-        <li>快速洗髮:100元(長髮+50元) 
+        <li>優質洗髮:200元(長髮+50元)
           <ul>
-            <li>活動加購(僅限快速洗髮):
-              <ul>
-                <li>潤絲免費 / 瞬間護髮50元 / 電棒50元 / 離子夾100元</li>
-              </ul>
-            </li>
+            <li>瞬間護髮加購(僅限優質洗髮):短髮50元 / 長髮100元 / V2調理200元</li>
           </ul>
         </li>
-        
+        <li>SPA洗髮:350元起</li>
+        <li>快速洗髮:100元(長髮+50元)
+          <ul>
+            <li>活動加購(僅限快速洗髮):潤絲免費 / 瞬間護髮50元 / 電棒50元 / 離子夾100元</li>
+          </ul>
+        </li>
         <li>保濕護髮:600元起</li>
         <li>植物高蛋白護理:650元(含洗髮）</li>
         <li>胡蘿波素護理:800元(含洗髮）</li>
@@ -130,9 +154,106 @@
       </ul>
     </div>
 
-
   </div>
 </main>
+
+<!-- 浮動按鈕 -->
+<button class="float-btn" onclick="openModal()">金額試算</button>
+
+<!-- 彈窗 -->
+<div id="calcModal">
+  <div class="modal-content">
+    <h3>金額試算</h3>
+    <div id="allServices"></div>
+    <button onclick="calculateTotal()">計算總額</button>
+    <button onclick="closeModal()">關閉</button>
+    <p id="totalAmount" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
+</div>
+
+<script>
+// 主服務資料及加購選項
+const serviceData = {
+  '剪髮':[ {name:'快速剪髮',price:100},
+           {name:'設計剪髮',price:200},
+           {name:'造型剪髮',price:300} ],
+  '染髮':[ {name:'短髮 XS',price:650}, {name:'碰肩 S',price:800}, {name:'中長 M',price:1000}, {name:'長髮 L',price:1200}, {name:'特長 XL',price:1500} ],
+  '燙髮':[ {name:'離子燙',price:1500}, {name:'冷塑燙',price:1500}, {name:'溫塑燙',price:2500} ],
+  '洗護髮':[ 
+    {name:'快速洗髮',price:100,extra:['潤絲免費','瞬間護髮50元','電棒50元','離子夾100元']},
+    {name:'優質洗髮',price:200,extra:['瞬間護髮短髮50元','瞬間護髮長髮100元','V2調理200元']},
+    {name:'SPA洗髮',price:350},
+    {name:'保濕護髮',price:600},
+    {name:'植物高蛋白護理',price:650},
+    {name:'胡蘿波素護理',price:800},
+    {name:'深層結構式護理',price:1000}
+  ]
+};
+
+function openModal(){
+  const modal = document.getElementById('calcModal');
+  modal.style.display='flex';
+  const container = document.getElementById('allServices');
+  container.innerHTML='';
+
+  for(let type in serviceData){
+    const section = document.createElement('div');
+    section.className='service-section';
+    section.innerHTML=`<h4>${type}</h4>`;
+    serviceData[type].forEach((item, idx)=>{
+      const mainId = type+'_'+idx;
+      section.innerHTML+=`<label><input type="checkbox" class="serviceItem" data-price="${item.price}" data-type="${type}" data-index="${idx}" id="${mainId}"> ${item.name} - ${item.price}元</label>`;
+      if(item.extra){
+        section.innerHTML+=`<div class="extra-options" id="${mainId}_extra" style="display:none;"></div>`;
+      }
+    });
+    container.appendChild(section);
+  }
+
+  document.querySelectorAll('.serviceItem').forEach(mainCheckbox=>{
+    mainCheckbox.addEventListener('change', (e)=>{
+      const id = e.target.id;
+      const extrasDiv = document.getElementById(id+'_extra');
+      extrasDiv && (extrasDiv.style.display = e.target.checked ? 'block' : 'none');
+
+      if(e.target.checked && extrasDiv){
+        extrasDiv.innerHTML='';
+        const type = e.target.dataset.type;
+        const idx = e.target.dataset.index;
+        const extras = serviceData[type][idx].extra;
+        if(extras){
+          extras.forEach(ex=>{
+            const price = parseInt(ex.match(/\d+/))||0;
+            extrasDiv.innerHTML+=`<label><input type="checkbox" data-price="${price}"> ${ex}</label>`;
+          });
+        }
+      } else if(!e.target.checked && extrasDiv){
+        extrasDiv.innerHTML='';
+      }
+    });
+  });
+}
+
+// 點空白處關閉彈窗
+document.getElementById('calcModal').addEventListener('click', function(e){
+  if(e.target === this){
+    closeModal();
+  }
+});
+
+function closeModal(){
+  document.getElementById('calcModal').style.display='none';
+  document.getElementById('totalAmount').innerText='';
+}
+
+function calculateTotal(){
+  let total=0;
+  document.querySelectorAll('#allServices input[type=checkbox]:checked').forEach(input=>{
+    total+=parseInt(input.dataset.price)||0;
+  });
+  document.getElementById('totalAmount').innerText='總額: '+total+' 元';
+}
+</script>
 
 <footer>
   © 2025 可莉兒 Hair Salon <br>
