@@ -9,43 +9,26 @@
   header { background:#a8e6cf; padding:20px; }
   header h2 { margin:0; color:#4a7c53; }
 
-  /* ✅ 改成可橫向滑動的導航列 */
-  nav ul {
-    list-style:none;
-    display:flex;
-    gap:15px;
-    padding:10px 0 0;
-    margin:0;
-    overflow-x:auto;
-    white-space:nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
+  nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling: touch; }
   nav li { flex:0 0 auto; }
-  nav a {
-    text-decoration:none;
-    color:#333;
-    font-weight:bold;
-    padding:6px 10px;
-    border-radius:4px;
-    display:inline-block;
-  }
-  nav a:hover, nav a.active {
-    background:#7bd8a2;
-    color:#fff;
-  }
+  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; display:inline-block; }
+  nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
   main { max-width:1000px; margin:40px auto; padding:0 20px; }
   h1 { color:#4a7c53; margin-bottom:30px; text-align:center; }
 
   .services { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
-  .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); text-align:center; }
+  .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); text-align:center; cursor:pointer; transition:transform 0.2s; }
+  .card:hover { transform:scale(1.03); }
   .card img { width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:15px; }
   .card h3 { margin:10px 0; color:#4a7c53; }
-  .card p { font-size:0.95rem; color:#555; line-height:1.5; }
+  
+  /* 下拉清單 */
+  .details { display:none; text-align:left; margin-top:10px; padding-left:10px; }
+  .details li { margin-bottom:6px; }
 
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
-  footer a,
-  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
   footer a:hover { color:#4a7c53; }
 </style>
 </head>
@@ -69,36 +52,84 @@
 <main>
   <h1>服務項目</h1>
   <div class="services">
-    <div class="card">
-      <img src="images/service-men.jpg" alt="男士剪髮">
-      <h3>男士剪髮</h3>
-      <p>專業設計與俐落修剪，展現個性魅力。</p>
+
+    <div class="card" onclick="toggleDetails(this)">
+      <img src="images/service-color.jpeg" alt="剪髮">
+      <h3>剪髮</h3>
+      <ul class="details">
+        <li>快速剪髮</li>
+        <li>設計剪髮</li>
+        <li>造型剪髮</li>
+      </ul>
     </div>
-    <div class="card">
-      <img src="images/service-women.jpg" alt="女士剪髮">
-      <h3>女士剪髮</h3>
-      <p>根據臉型與風格量身打造，呈現自然美感。</p>
+
+    <div class="card" onclick="toggleDetails(this)">
+      <img src="images/service-men.jpg" alt="染髮">
+      <h3>染髮</h3>
+      <ul class="details">
+        <li>短髮 (XS)</li>
+        <li>碰肩 (S)</li>
+        <li>中長 (M)</li>
+        <li>長髮 (L)</li>
+        <li>特長 (XL)</li>
+      </ul>
     </div>
-    <div class="card">
-      <img src="images/service-wave.jpeg" alt="水波紋燙髮">
-      <h3>水波紋燙髮</h3>
-      <p>打造柔美浪漫的波浪線條，提升氣質。</p>
+
+
+    <div class="card" onclick="toggleDetails(this)">
+      <img src="images/service-wave.jpeg" alt="燙髮">
+      <h3>燙髮</h3>
+      <ul class="details">
+        <li>離子燙髮</li>
+        <li>冷塑燙髮</li>
+        <li>溫塑燙髮</li>
+      </ul>
     </div>
-    <div class="card">
-      <img src="images/service-perm.jpg" alt="溫塑燙">
-      <h3>溫塑燙</h3>
-      <p>結合捲度與自然垂墜感，蓬鬆又持久。</p>
+
+    <div class="card" onclick="toggleDetails(this)">
+      <img src="images/service-ombre.avif" alt="洗髮">
+      <h3>洗髮</h3>
+      <ul class="details">
+        <li>
+          優質洗髮
+          <ul>
+            <li>瞬間護髮(25分鐘):
+              <ul>
+                <li>短髮</li>
+                <li>長髮</li>
+                <li>V2調理</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>SPA洗髮</li>
+        <li>
+          快速洗髮
+          <ul>
+            <li>活動加價選項:
+              <ul>
+                <li>潤絲</li>
+                <li>瞬間護髮</li>
+                <li>電棒</li>
+                <li>離子夾</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
-    <div class="card">
-      <img src="images/service-color.jpeg" alt="護色染">
-      <h3>護色染</h3>
-      <p>色彩持久亮麗，搭配護理維持髮質健康。</p>
+
+    <div class="card" onclick="toggleDetails(this)">
+      <img src="images/service-perm.jpg" alt="護髮">
+      <h3>護髮</h3>
+      <ul class="details">
+        <li>保濕護髮</li>
+        <li>植物高蛋白護理(含洗髮)(40分鐘)</li>
+        <li>胡蘿波素護理(含洗髮)(60分鐘)</li>
+        <li>深層結構式護理(含洗髮)(80分鐘)</li>
+      </ul>
     </div>
-    <div class="card">
-      <img src="images/service-ombre.avif" alt="漸層染">
-      <h3>漸層染</h3>
-      <p>漸層過渡自然，展現獨特時尚風格。</p>
-    </div>
+
   </div>
 </main>
 
@@ -111,6 +142,17 @@
   <a href="https://www.instagram.com/bijunzhan?igsh=dmdkbWRvbG1kd3Q0" target="_blank">Instagram</a> ｜
   <a href="https://line.me/R/ti/p/@491xwhjb" target="_blank">LINE</a>
 </footer>
+
+<script>
+  function toggleDetails(card){
+    const details = card.querySelector('.details');
+    if(details.style.display === "block"){
+      details.style.display = "none";
+    } else {
+      details.style.display = "block";
+    }
+  }
+</script>
 
 </body>
 </html>
