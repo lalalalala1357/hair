@@ -1,55 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>價目表 - 可莉兒 Hair Salon</title>
 <style>
   body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
-  header { background:#a8e6cf; padding:20px; }
+  header { background:#a8e6cf; padding:20px; text-align:left; }
   header h2 { margin:0; color:#4a7c53; }
 
-  /* ✅ 可滑動導航列 */
   nav ul {
-    list-style:none;
-    display:flex;
-    gap:15px;
-    padding:10px 0 0;
-    margin:0;
-    overflow-x:auto;
-    white-space:nowrap;
+    list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; overflow-x:auto; white-space:nowrap;
     -webkit-overflow-scrolling: touch;
   }
   nav li { flex:0 0 auto; }
-  nav a {
-    text-decoration:none;
-    color:#333;
-    font-weight:bold;
-    padding:6px 10px;
-    border-radius:4px;
-    display:inline-block;
-  }
-  nav a:hover, nav a.active {
-    background:#7bd8a2;
-    color:#fff;
-  }
+  nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; display:inline-block; }
+  nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
   main { max-width:1000px; margin:40px auto; padding:0 20px; }
   h1 { color:#4a7c53; margin-bottom:30px; text-align:center; }
 
-  .pricing { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
-  .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); text-align:center; position:relative; }
-  .card h3 { margin:10px 0; color:#4a7c53; }
-  .card p { font-size:0.95rem; color:#555; margin-bottom:15px; }
-  .card strong { font-size:1.2rem; color:#333; }
+  .pricing { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
+  .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); position:relative; }
+  .card h3 { margin:10px 0; color:#4a7c53; text-align:center; }
+  .card ul { list-style:none; padding:0; margin:10px 0; }
+  .card li { margin-bottom:6px; color:#555; }
 
-  /* 標籤 */
-  .tag { position:absolute; top:15px; right:15px; background:#ff7675; color:#fff; font-size:0.8rem; padding:4px 8px; border-radius:6px; }
-  .recommend { background:#74b9ff; }
+  /* 標籤顏色 */
+  .tag { position:absolute; top:15px; right:15px; color:#fff; font-size:0.8rem; padding:4px 8px; border-radius:6px; }
+  .tag剪髮 { background: #6ab04c; }   /* 剪髮綠色 */
+  .tag染髮 { background: #e056fd; }   /* 染髮紫色 */
+  .tag燙髮 { background: #ff7979; }   /* 燙髮紅色 */
+  .tag洗護髮 { background: #f9ca24; }   /* 護髮黃色 */
 
   footer { margin-top:60px; background:#a8e6cf; padding:20px; text-align:center; font-size:0.9rem; }
-  footer a,
-  footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
+  footer a, footer a:visited { color:#333; text-decoration:none; margin:0 8px; }
   footer a:hover { color:#4a7c53; }
 </style>
 </head>
@@ -73,36 +58,87 @@
 <main>
   <h1>價目表</h1>
   <div class="pricing">
+
+    <!-- 剪髮 -->
     <div class="card">
-      <span class="tag recommend">推薦</span>
-      <h3>男士剪髮</h3>
-      <p>設計師依需求修剪，俐落有型。</p>
-      <strong>300元</strong>
+      <span class="tag tag剪髮">剪髮</span>
+      <h3>剪髮</h3>
+      <ul>
+        <li>快速剪髮:100元</li>
+        <li>設計剪髮:200元</li>
+        <li>造型剪髮:300元</li>
+      </ul>
     </div>
+
+    <!-- 染髮 -->
     <div class="card">
-      <h3>女士剪髮</h3>
-      <p>根據臉型打造自然清新的風格。</p>
-      <strong>300元</strong>
+      <span class="tag tag染髮">染髮</span>
+      <h3>染髮</h3>
+      <ul>
+        <li>短髮 (XS):800元 → 優惠價650元</li>
+        <li>碰肩 (S):1000元 → 優惠價800元</li>
+        <li>中長 (M):1200元 → 優惠價1000元</li>
+        <li>長髮 (L):1500元 → 優惠價1200元</li>
+        <li>特長 (XL):1800元 → 優惠價1500元</li>
+      </ul>
     </div>
+
+    <!-- 燙髮 -->
     <div class="card">
-      <span class="tag">熱門</span>
-      <h3>韓式燙髮</h3>
-      <p>韓系捲度造型，蓬鬆浪漫。</p>
-      <strong>1000元起</strong>
+      <span class="tag tag燙髮">燙髮</span>
+      <h3>燙髮</h3>
+      <ul>
+        <li>離子燙髮:1500元</li>
+        <li>冷塑燙髮:1500元</li>
+        <li>溫塑燙髮:2500元</li>
+      </ul>
     </div>
+
+    <!-- 護髮/洗髮 -->
+    <!-- 護髮/洗髮 -->
     <div class="card">
-      <h3>染髮護髮</h3>
-      <p>專業染髮搭配護理，亮麗又護色。</p>
-      <strong>1000元起</strong>
+      <span class="tag tag洗護髮">洗護髮</span>
+      <h3>洗髮 / 護髮</h3>
+
+      <li>優質洗髮:200元(長髮+50元)</li>
+          <ul>
+            <li>瞬間護髮加購(僅限優質洗髮):
+              <ul>
+                <li>短髮50元 / 長髮100元 / V2調理200元</li>
+              </ul>
+            </li>
+          </ul>
+
+      <ul>
+
+        <li>SPA洗髮:350元起</li>
+
+        <li>快速洗髮:100元(長髮+50元) 
+          <ul>
+            <li>活動加購(僅限快速洗髮):
+              <ul>
+                <li>潤絲免費 / 瞬間護髮50元 / 電棒50元 / 離子夾100元</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        
+        <li>保濕護髮:600元起</li>
+        <li>植物高蛋白護理:650元(含洗髮）</li>
+        <li>胡蘿波素護理:800元(含洗髮）</li>
+        <li>深層結構式護理:1000元(含洗髮）</li>
+      </ul>
     </div>
+
+
   </div>
 </main>
 
 <footer>
   © 2025 可莉兒 Hair Salon <br>
-  地址：514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
+  地址:514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
   電話：<a href="tel:0988528051">0988-528-051</a><br>
-  營業時間：週一至週日 11:00–20:00<br>
+  營業時間：週一至週日 11:00-20:00<br>
   <a href="https://www.facebook.com/share/17SjkpTezD/?mibextid=wwXIfr" target="_blank">Facebook</a> ｜ 
   <a href="https://www.instagram.com/bijunzhan?igsh=dmdkbWRvbG1kd3Q0" target="_blank">Instagram</a> ｜
   <a href="https://line.me/R/ti/p/@491xwhjb" target="_blank">LINE</a>
