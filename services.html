@@ -6,7 +6,14 @@
 <title>服務項目 - 可莉兒 Hair Salon</title>
 <style>
   body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
-  header { background:#a8e6cf; padding:20px; }
+
+  header {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background:#a8e6cf;
+    padding:20px;
+    z-index:1000;
+  }
   header h2 { margin:0; color:#4a7c53; }
 
   nav ul { list-style:none; display:flex; gap:15px; padding:10px 0 0; margin:0; overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling: touch; }
@@ -14,7 +21,7 @@
   nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; display:inline-block; }
   nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
-  main { max-width:1000px; margin:40px auto; padding:0 20px; }
+  main { max-width:1000px; margin:140px auto 40px; padding:0 20px; }
   h1 { color:#4a7c53; margin-bottom:30px; text-align:center; }
 
   .services { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
@@ -22,8 +29,7 @@
   .card:hover { transform:scale(1.03); }
   .card img { width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:15px; }
   .card h3 { margin:10px 0; color:#4a7c53; }
-  
-  /* 下拉清單 */
+
   .details { display:none; text-align:left; margin-top:10px; padding-left:10px; }
   .details li { margin-bottom:6px; }
 
@@ -74,7 +80,6 @@
         <li>特長 (XL)</li>
       </ul>
     </div>
-
 
     <div class="card" onclick="toggleDetails(this)">
       <img src="images/service-wave.jpeg" alt="燙髮">
@@ -135,9 +140,9 @@
 
 <footer>
   © 2025 可莉兒 Hair Salon <br>
-  地址：514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
-  電話：<a href="tel:0988528051">0988-528-051</a><br>
-  營業時間：週一至週日 11:00–20:00<br>
+  地址:514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
+  電話:<a href="tel:0988528051">0988-528-051</a><br>
+  營業時間：週一至週日 11:00-20:00<br>
   <a href="https://www.facebook.com/share/17SjkpTezD/?mibextid=wwXIfr" target="_blank">Facebook</a> ｜ 
   <a href="https://www.instagram.com/bijunzhan?igsh=dmdkbWRvbG1kd3Q0" target="_blank">Instagram</a> ｜
   <a href="https://line.me/R/ti/p/@491xwhjb" target="_blank">LINE</a>
@@ -146,11 +151,7 @@
 <script>
   function toggleDetails(card){
     const details = card.querySelector('.details');
-    if(details.style.display === "block"){
-      details.style.display = "none";
-    } else {
-      details.style.display = "block";
-    }
+    details.style.display = (details.style.display === "block") ? "none" : "block";
   }
 </script>
 
