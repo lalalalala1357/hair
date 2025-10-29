@@ -6,7 +6,15 @@
 <title>價目表 - 可莉兒 Hair Salon</title>
 <style>
   body { font-family: Arial,sans-serif; background:#f9fff9; margin:0; padding:0; color:#333; }
-  header { background:#a8e6cf; padding:20px; text-align:left; }
+
+  header {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background:#a8e6cf;
+    padding:20px;
+    text-align:left;
+    z-index:1000;
+  }
   header h2 { margin:0; color:#4a7c53; }
 
   nav ul {
@@ -17,7 +25,11 @@
   nav a { text-decoration:none; color:#333; font-weight:bold; padding:6px 10px; border-radius:4px; display:inline-block; }
   nav a:hover, nav a.active { background:#7bd8a2; color:#fff; }
 
-  main { max-width:1000px; margin:40px auto; padding:0 20px; }
+  main {
+    max-width:1000px;
+    margin:140px auto 40px; /* 調整上方間距，和預約頁對齊 */
+    padding:0 20px;
+  }
   h1 { color:#4a7c53; margin-bottom:30px; text-align:center; }
 
   .pricing { display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
@@ -26,14 +38,12 @@
   .card ul { list-style:none; padding:0; margin:10px 0; }
   .card li { margin-bottom:6px; color:#555; }
 
-  /* 標籤顏色 */
   .tag { position:absolute; top:15px; right:15px; color:#fff; font-size:0.8rem; padding:4px 8px; border-radius:6px; }
   .tag剪髮 { background: #6ab04c; }   
   .tag染髮 { background: #e056fd; }   
   .tag燙髮 { background: #ff7979; }   
   .tag洗護髮 { background: #f9ca24; }   
 
-  /* 浮動按鈕 */
   .float-btn {
     position: fixed;
     bottom: 30px;
@@ -50,7 +60,6 @@
   }
   .float-btn:hover { background:#3b5f40; }
 
-  /* 彈窗樣式 */
   #calcModal {
     display:none;
     position:fixed; top:0; left:0; width:100%; height:100%;
@@ -118,7 +127,6 @@
     <div class="card">
       <span class="tag tag染髮">染髮</span>
       <h3>染髮</h3>
-
       <ul>
         <li>短髮 (XS):800元 → 優惠價650元</li>
         <li>碰肩 (S):1000元 → 優惠價800元</li>
@@ -126,9 +134,7 @@
         <li>長髮 (L):1500元 → 優惠價1200元</li>
         <li>特長 (XL):1800元 → 優惠價1500元</li>
       </ul>
-      <!-- 頭髮長度示意圖 -->
-      <img src="images/service-women.jpg" alt="頭髮長度參考" 
-      style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-top:10px;">
+      <img src="images/service-women.jpg" alt="頭髮長度參考" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin-top:10px;">
     </div>
 
     <!-- 護髮/洗髮 -->
@@ -157,10 +163,8 @@
   </div>
 </main>
 
-<!-- 浮動按鈕 -->
 <button class="float-btn" onclick="openModal()">金額試算</button>
 
-<!-- 彈窗 -->
 <div id="calcModal">
   <div class="modal-content">
     <h3>金額試算</h3>
@@ -172,7 +176,6 @@
 </div>
 
 <script>
-// 主服務資料及加購選項
 const serviceData = {
   '剪髮':[ {name:'快速剪髮',price:100},
            {name:'設計剪髮',price:200},
@@ -234,7 +237,6 @@ function openModal(){
   });
 }
 
-// 點空白處關閉彈窗
 document.getElementById('calcModal').addEventListener('click', function(e){
   if(e.target === this){
     closeModal();
