@@ -51,26 +51,31 @@
   }
 
   main {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 100px 20px 40px;
+    max-width: 1000px;           /* 與價目表相同寬度 */
+    margin: 140px auto 40px;           /* 上下間距 40px，左右置中 */
+    padding: 0px 20px;    /* 上 140px 避開 header，左右 20px，下 40px */
   }
+
   h1 {
     color: #4a7c53;
     margin-bottom: 20px;
+    text-align: center;
   }
+
   form {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
+
   label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
     color: #4a7c53;
   }
+
   select, input {
     width: 100%;
     padding: 10px;
@@ -79,6 +84,7 @@
     border-radius: 6px;
     font-size: 1rem;
   }
+
   button {
     background-color: #7bd8a2;
     border: none;
@@ -89,6 +95,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
+
   button:hover {
     background-color: #5bb174;
   }
@@ -100,12 +107,14 @@
     text-align: center;
     font-size: 0.9rem;
   }
+
   footer a,
   footer a:visited {
     color: #333;
     text-decoration: none;
     margin: 0 8px;
   }
+
   footer a:hover {
     color: #4a7c53;
   }
