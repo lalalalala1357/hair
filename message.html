@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>留言管理 - 可莉兒 Hair Salon-管理後台</title>
+<style>
+:root{
+  --bg:#f7fff7;
+  --card:#ffffff;
+  --accent:#a8e6cf;
+  --muted:#666;
+  --btn:#ccc;
+}
+body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0;color:#333}
+
+/* Header / Nav */
+header{
+  background:#a8e6cf;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
+nav ul{
+  list-style:none;
+  display:flex;
+  gap:12px;
+  margin:0;
+  padding:0;
+  overflow-x:auto;
+  white-space:nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+nav a{
+  text-decoration:none;
+  color:#333;
+  font-weight:bold;
+  padding:6px 12px;
+  border-radius:4px;
+}
+nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+
+main { max-width:1000px; margin:40px auto; padding:0 20px; }
+h1 { color:#4a7c53; text-align:center; margin-bottom:30px; }
+
+table {
+  width:100%;
+  border-collapse: collapse;
+  background:var(--card);
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  border-radius:8px;
+  overflow:hidden;
+}
+th, td { border-bottom:1px solid #ccc; padding:12px 15px; text-align:left; }
+th { background:#7bd8a2; color:#fff; }
+tr:nth-child(even) { background:#e6f7ed; }
+tr.replied { opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>可莉兒 Hair Salon - 管理後台</h1>
+  <nav>
+    <ul>
+      <li><a href="admin-calendar.html">行事曆管理</a></li>
+      <li><a href="vip_test.html">VIP管理</a></li>
+      <li><a href="admin-news.html">公告管理</a></li>
+      <li><a href="message.html" class="active">留言管理</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>留言管理</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>姓名</th>
+        <th>電子郵件</th>
+        <th>留言內容</th>
+        <th>送出時間</th>
+        <th>已回覆</th>
+      </tr>
+    </thead>
+    <tbody id="messages-table">
+      <!-- 留言會自動載入 -->
+    </tbody>
+  </table>
+</main>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+  authDomain: "hair-salon-56eb5.firebaseapp.com",
+  projectId: "hair-salon-56eb5",
+  storageBucket: "hair-salon-56eb5.appspot.com",
+  messagingSenderId: "64472921085",
+  appId: "1:64472921085:web:78ba36b069597490625f94"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const tableBody = document.getElementById('messages-table');
+
+// 讀取留言
+db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+  const messages = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    messages.push({id: doc.id, ...data, replied: data.replied || false});
+  });
+
+  // 先把未回覆排上方
+  messages.sort((a,b) => a.replied - b.replied);
+
+  tableBody.innerHTML = "";
+  messages.forEach(data => {
+    const row = document.createElement('tr');
+    if(data.replied) row.classList.add('replied');
+
+    // 姓名
+    const nameCell = document.createElement('td');
+    nameCell.textContent = data.name || '';
+    row.appendChild(nameCell);
+
+    // 電子郵件
+    const emailCell = document.createElement('td');
+    emailCell.textContent = data.email || '';
+    row.appendChild(emailCell);
+
+    // 留言內容
+    const messageCell = document.createElement('td');
+    messageCell.textContent = data.message || '';
+    row.appendChild(messageCell);
+
+    // 送出時間
+    const timeCell = document.createElement('td');
+    const date = data.createdAt ? data.createdAt.toDate() : new Date();
+    timeCell.textContent = date.toLocaleString();
+    row.appendChild(timeCell);
+
+    // 已回覆勾勾
+    const repliedCell = document.createElement('td');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = data.replied;
+    checkbox.addEventListener('change', async () => {
+      await db.collection('messages').doc(data.id).update({replied: checkbox.checked});
+    });
+    repliedCell.appendChild(checkbox);
+    row.appendChild(repliedCell);
+
+    tableBody.appendChild(row);
+  });
+});
+</script>
+
+</body>
+</html>
