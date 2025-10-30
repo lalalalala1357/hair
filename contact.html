@@ -38,7 +38,14 @@
 
   iframe { width:100%; height:320px; border:0; border-radius:8px; margin-bottom:30px; }
 
-  form { background:#fff; padding:20px 40px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); max-width:500px;/* 限制表單最大寬度 */   margin:0 auto;/* 置中 */}
+  form { 
+    background:#fff; 
+    padding:20px 40px; 
+    border-radius:8px; 
+    box-shadow:0 2px 8px rgba(0,0,0,0.1); 
+    max-width:500px; 
+    margin:0 auto; 
+  }
   label { display:block; margin-bottom:8px; font-weight:bold; color:#4a7c53; }
   input, textarea {
     width:100%; padding:10px; margin-bottom:20px;
@@ -103,20 +110,53 @@
 
 <footer>
   © 2025 可莉兒 Hair Salon <br>
-  地址：514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
+  地址:514 彰化縣溪湖鎮二溪路一段329巷30號 <br>
   電話：<a href="tel:0988528051">0988-528-051</a><br>
-  營業時間：週一至週日 11:00–20:00<br>
+  營業時間：週一至週日 11:00-20:00<br>
   <a href="https://www.facebook.com/share/17SjkpTezD/?mibextid=wwXIfr" target="_blank">Facebook</a> ｜ 
   <a href="https://www.instagram.com/bijunzhan?igsh=dmdkbWRvbG1kd3Q0" target="_blank">Instagram</a> ｜
   <a href="https://line.me/R/ti/p/@491xwhjb" target="_blank">LINE</a>
 </footer>
 
+<!-- ---------------- Firebase SDK ---------------- -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
+  // ---------------- Firebase 初始化 ----------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
+    authDomain: "hair-salon-56eb5.firebaseapp.com",
+    projectId: "hair-salon-56eb5",
+    storageBucket: "hair-salon-56eb5.firebasestorage.app",
+    messagingSenderId: "64472921085",
+    appId: "1:64472921085:web:78ba36b069597490625f94",
+    measurementId: "G-Z5224KYPR7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   const contactForm = document.getElementById('contact-form');
-  contactForm.addEventListener('submit', e => {
+
+  contactForm.addEventListener('submit', async e => {
     e.preventDefault();
-    alert('✅ 謝謝您的留言，我們會盡快與您聯絡！');
-    contactForm.reset();
+
+    const name = document.getElementById('contact-name').value;
+    const email = document.getElementById('contact-email').value;
+    const message = document.getElementById('contact-message').value;
+
+    try {
+      await db.collection('messages').add({
+        name: name,
+        email: email,
+        message: message,
+        createdAt: new Date()
+      });
+      alert('✅ 謝謝您的留言，我們會盡快與您聯絡！');
+      contactForm.reset();
+    } catch (error) {
+      console.error(error);
+      alert('❌ 送出失敗，請稍後再試');
+    }
   });
 </script>
 
