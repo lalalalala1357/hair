@@ -175,13 +175,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5",
-  storageBucket: "hair-salon-56eb5.firebasestorage.app",
-  messagingSenderId: "64472921085",
-  appId: "1:64472921085:web:78ba36b069597490625f94",
-  measurementId: "G-Z5224KYPR7"
+  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+  authDomain: "hsinformation.firebaseapp.com",
+  projectId: "hsinformation",
+  storageBucket: "hsinformation.firebasestorage.app",
+  messagingSenderId: "245515525647",
+  appId: "1:245515525647:web:00bf24514009bddd02cd7a",
+  measurementId: "G-DG6Z64PHF6"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -205,7 +205,6 @@ async function loadAnnouncements(){
   errorDiv.classList.add("hidden");
   try {
     const snapshot = await db.collection("announcements")
-      .orderBy("pinned","desc")
       .orderBy("createdAt","desc")
       .get();
     if(snapshot.empty){
