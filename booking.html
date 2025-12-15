@@ -254,11 +254,11 @@
 
       // 顯示文字處理
       if (isPastTime) {
-        option.textContent = `${time} (已過時)`;
+        option.textContent = `${time} (已超過時間)`;
         option.disabled = true;
         option.style.color = '#ccc'; // 灰色
       } else if (isBooked) {
-        option.textContent = `${time} (已預約)`;
+        option.textContent = `${time} (已被預約)`;
         option.disabled = true;
         option.style.color = '#ccc'; // 灰色
       } else {
