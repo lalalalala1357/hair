@@ -17,8 +17,30 @@ body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padd
 /* header/nav */
 header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
-nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling: touch;}
-nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
+
+nav {
+  overflow-x: auto;           /* 超出寬度時水平滑動 */
+  overflow-y: hidden;         /* 禁止上下滾動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
+nav ul{
+  list-style:none;
+  display:flex;gap:12px;
+  margin:0;
+  padding:0;
+  white-space:nowrap;
+
+}
+nav a{
+  text-decoration:none;
+  color:#333;
+  font-weight:bold;
+  padding:6px 12px;
+  border-radius:4px;
+  flex-shrink: 0;             /* 防止自動壓縮 */
+
+}
 nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
 
 /* 行事曆 */
@@ -205,9 +227,9 @@ button:hover {
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5"
+  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+  authDomain: "hsinformation.firebaseapp.com",
+  projectId: "hsinformation"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -434,7 +456,7 @@ document.getElementById('refreshBtn').addEventListener('click', ()=>{
 
 if(!localStorage.getItem('calendar_authenticated')){
   const password = prompt('請輸入管理密碼');
-  if(password==='salon2025'){
+  if(password==='clear0921'){
     localStorage.setItem('calendar_authenticated','true');
     loadAppointments(currentYear,currentMonth);
   } else {
