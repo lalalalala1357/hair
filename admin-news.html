@@ -16,9 +16,33 @@ body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padd
 
 header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
-nav ul{list-style:none;display:flex;gap:12px;margin:0;padding:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling: touch;}
-nav a{text-decoration:none;color:#333;font-weight:bold;padding:6px 12px;border-radius:4px;}
-nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
+
+nav {
+  overflow-x: auto;           /* 超出寬度時可水平滑動 */
+  overflow-y: hidden;         /* 禁止上下滾動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
+nav ul {
+  list-style:none;
+  display:flex;
+  gap:12px;
+  margin:0;
+  padding:0;
+  white-space:nowrap;
+}
+nav a
+{ text-decoration:none;
+  color:#333;
+  font-weight:bold;
+  padding:6px 12px;
+  border-radius:4px;
+  flex-shrink: 0;            /* 防止自動壓縮 */
+}
+nav a:hover, nav a.active{
+  background:#7bd8a2;
+  color:#fff;
+}
 
 .container{max-width:900px;margin:20px auto;padding:0 20px;}
 h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
@@ -120,20 +144,20 @@ h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5",
-  storageBucket: "hair-salon-56eb5.firebasestorage.app",
-  messagingSenderId: "64472921085",
-  appId: "1:64472921085:web:78ba36b069597490625f94",
-  measurementId: "G-Z5224KYPR7"
+  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+  authDomain: "hsinformation.firebaseapp.com",
+  projectId: "hsinformation",
+  storageBucket: "hsinformation.firebasestorage.app",
+  messagingSenderId: "245515525647",
+  appId: "1:245515525647:web:00bf24514009bddd02cd7a",
+  measurementId: "G-DG6Z64PHF6"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 
 <script>
-const ADMIN_PASSWORD = "1234";
+const ADMIN_PASSWORD = "clear0921";
 const loginCard = document.getElementById('loginCard');
 const mainUI = document.getElementById('mainUI');
 const btnLogin = document.getElementById('btnLogin');
@@ -199,7 +223,7 @@ btnClear.addEventListener('click', ()=>{
 async function loadAnnouncements(){
   articlesDiv.innerHTML="";
   const snapshot = await db.collection("announcements")
-    .orderBy("pinned","desc")
+
     .orderBy("createdAt","desc")
     .get();
   snapshot.forEach((doc)=>{
