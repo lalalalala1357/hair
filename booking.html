@@ -191,7 +191,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-  // ---------------- Firebase 初始化 ----------------
+  // ---------------- Firebase 初始化 (維持不變) ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
     authDomain: "hsinformation.firebaseapp.com",
@@ -205,34 +205,71 @@
   const timeSelect = document.getElementById('time');
   const allTimes = ["10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
-  // 當選擇日期時，更新時間選單
+  // ==================== 新增功能：設定日期最小值 ====================
+  // 取得今天的日期字串，格式為 YYYY-MM-DD
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // 補零
+  const day = String(today.getDate()).padStart(2, '0'); // 補零
+  const todayString = `${year}-${month}-${day}`;
+
+  // 設定日期欄位的 min 屬性，讓使用者無法選擇今天之前的日期
+  dateInput.min = todayString;
+
+  // ==================== 修改功能：選擇日期時檢查時間 ====================
   dateInput.addEventListener('change', async () => {
     const selectedDate = dateInput.value;
     if (!selectedDate) return;
 
+    // 1. 先去資料庫抓已經被預約的時間
     const snapshot = await db.collection('appointments')
       .where('date', '==', selectedDate)
       .get();
-
     const bookedTimes = snapshot.docs.map(doc => doc.data().time);
 
+    // 2. 取得現在的小時 (0-23)
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // 3. 判斷使用者選的日期是不是「今天」
+    const isToday = (selectedDate === todayString);
+
+    // 4. 重置並產生時間選項
     timeSelect.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
 
     allTimes.forEach(time => {
       const option = document.createElement('option');
       option.value = time;
-      option.textContent = time;
+      
+      // 取得該選項的小時數 (例如 "14:00" -> 14)
+      const timeHour = parseInt(time.split(':')[0]);
 
-      if (bookedTimes.includes(time)) {
+      // 判斷是否為過去的時間 (只在選擇今天時檢查)
+      // 如果是今天，且該選項的時間 <= 現在時間，就鎖住
+      // 例如現在 14:30，那麼 14:00 及之前的都不能約
+      const isPastTime = isToday && (timeHour <= currentHour);
+
+      // 判斷是否已被預約
+      const isBooked = bookedTimes.includes(time);
+
+      // 顯示文字處理
+      if (isPastTime) {
+        option.textContent = `${time} (已過時)`;
         option.disabled = true;
-        option.style.color = '#ccc';
+        option.style.color = '#ccc'; // 灰色
+      } else if (isBooked) {
+        option.textContent = `${time} (已預約)`;
+        option.disabled = true;
+        option.style.color = '#ccc'; // 灰色
+      } else {
+        option.textContent = time; // 正常顯示
       }
 
       timeSelect.appendChild(option);
     });
   });
 
-  // 送出預約前再次檢查時間是否已被預約
+  // 送出預約 (維持不變)
   bookingForm.addEventListener('submit', async e => {
     e.preventDefault();
 
