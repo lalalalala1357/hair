@@ -17,6 +17,7 @@ body{
   background:var(--bg);
   margin:0;
   padding:0;
+  overflow-x: hidden; /* 阻止整個頁面水平滾動 */
 }
 header{
   background:#a8e6cf;
@@ -32,15 +33,22 @@ header h1{
   font-weight:bold;
   font-size:18px;
 }
+
+
+nav {
+  overflow-x: auto;           /* 超出寬度時可水平滑動 */
+  overflow-y: hidden;         /* 禁止上下滾動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
 nav ul{
   list-style:none;
   display:flex;
   gap:12px;
   margin:0;
   padding:0;
-  overflow-x:auto;
   white-space:nowrap;
-  -webkit-overflow-scrolling:touch;
+
 }
 nav a{
   text-decoration:none;
@@ -54,18 +62,44 @@ nav a:hover, nav a.active{
   background:#7bd8a2;
   color:#fff;
 }
-.container{max-width:1100px;margin:18px auto}
-.row{display:flex;gap:12px;flex-wrap:wrap}
+.container{
+  max-width:1100px;
+  margin:18px auto;
+  padding: 0 12px; /* 小螢幕內縮 */
+  box-sizing: border-box;
+}
+.row{
+  display:flex;
+  gap:12px;flex-wrap:wrap;
+  flex-wrap: wrap; /* 小螢幕自動換行 */
+
+}
 .card{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
-.col{flex:1;min-width:280px}
-input,button,select,textarea{font-size:14px;padding:8px;border-radius:6px;border:1px solid #ddd}
+.col{
+  flex:1 1 280px;
+  min-width:0px;
+}
+input,button,select,textarea {
+  font-size:14px;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ddd;
+  max-width: 100%;
+  box-sizing: border-box;  /* 包含 padding 與 border */
+}
+
 button{cursor:pointer;background:var(--btn);border:none}
 .small{font-size:13px;color:var(--muted)}
 .member-list{max-height:360px;overflow:auto;margin-top:8px}
 table{width:100%;border-collapse:collapse}
 td,th{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left}
 .actions button{margin-right:6px}
-.flex{display:flex;gap:8px;align-items:center}
+.flex{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap: wrap;  /* 小螢幕自動換行 */
+}
 .topbar{display:flex;gap:8px;align-items:center;margin-top:12px}
 .badge{padding:6px 8px;border-radius:999px;background:var(--accent);font-weight:600}
 .muted{color:#888}
@@ -171,9 +205,9 @@ let lastTrans = []
 
 // TODO: 換成你自己的 Firebase 設定
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5"
+  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+  authDomain: "hsinformation.firebaseapp.com",
+  projectId: "hsinformation"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore()
