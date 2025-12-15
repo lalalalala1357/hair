@@ -24,15 +24,21 @@ header{
   flex-wrap:wrap;
 }
 header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
+
+
+nav {
+  overflow-x: auto;           /* 超出寬度時水平滑動 */
+  overflow-y: hidden;         /* 禁止上下滾動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
 nav ul{
   list-style:none;
   display:flex;
   gap:12px;
   margin:0;
   padding:0;
-  overflow-x:auto;
   white-space:nowrap;
-  -webkit-overflow-scrolling: touch;
 }
 nav a{
   text-decoration:none;
@@ -40,22 +46,36 @@ nav a{
   font-weight:bold;
   padding:6px 12px;
   border-radius:4px;
+  flex-shrink: 0;             /* 防止自動壓縮 */
 }
 nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
 
 main { max-width:1000px; margin:40px auto; padding:0 20px; }
 h1 { color:#4a7c53; text-align:center; margin-bottom:30px; }
 
+.table-wrapper {
+  overflow-x: auto;       /* 超出寬度時可水平滑動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
 table {
   width:100%;
+  min-width: 600px;
   border-collapse: collapse;
   background:var(--card);
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
   border-radius:8px;
   overflow:hidden;
 }
-th, td { border-bottom:1px solid #ccc; padding:12px 15px; text-align:left; }
-th { background:#7bd8a2; color:#fff; }
+th, td {
+  border-bottom:1px solid #ccc;
+  padding:8px 10px
+  ; text-align:left;
+}
+th {
+  background:#7bd8a2;
+  color:#fff;
+}
 tr:nth-child(even) { background:#e6f7ed; }
 tr.replied { opacity: 0.6; }
 </style>
@@ -76,20 +96,23 @@ tr.replied { opacity: 0.6; }
 
 <main>
   <h1>留言管理</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>姓名</th>
-        <th>電子郵件</th>
-        <th>留言內容</th>
-        <th>送出時間</th>
-        <th>已回覆</th>
-      </tr>
-    </thead>
-    <tbody id="messages-table">
-      <!-- 留言會自動載入 -->
-    </tbody>
-  </table>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>聯絡方式</th>
+          <th>留言內容</th>
+          <th>送出時間</th>
+          <th>已查看</th>
+          <th>刪除</th> <!-- ✅ 新增 -->
+        </tr>
+      </thead>
+      <tbody id="messages-table">
+        <!-- 留言會自動載入 -->
+      </tbody>
+    </table>
+  </div>
 </main>
 
 <!-- Firebase SDK -->
@@ -97,12 +120,12 @@ tr.replied { opacity: 0.6; }
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-  authDomain: "hair-salon-56eb5.firebaseapp.com",
-  projectId: "hair-salon-56eb5",
-  storageBucket: "hair-salon-56eb5.appspot.com",
-  messagingSenderId: "64472921085",
-  appId: "1:64472921085:web:78ba36b069597490625f94"
+  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+  authDomain: "hsinformation.firebaseapp.com",
+  projectId: "hsinformation",
+  storageBucket: "hsinformation.firebasestorage.app",
+  messagingSenderId: "245515525647",
+  appId: "1:245515525647:web:00bf24514009bddd02cd7a"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -131,9 +154,9 @@ db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
     row.appendChild(nameCell);
 
     // 電子郵件
-    const emailCell = document.createElement('td');
-    emailCell.textContent = data.email || '';
-    row.appendChild(emailCell);
+    const contactCell = document.createElement('td');
+    contactCell.textContent = data.contact || '';
+    row.appendChild(contactCell);
 
     // 留言內容
     const messageCell = document.createElement('td');
@@ -146,7 +169,7 @@ db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
     timeCell.textContent = date.toLocaleString();
     row.appendChild(timeCell);
 
-    // 已回覆勾勾
+    // 已查看勾勾
     const repliedCell = document.createElement('td');
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -158,6 +181,28 @@ db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
     row.appendChild(repliedCell);
 
     tableBody.appendChild(row);
+
+
+
+        // 刪除按鈕
+    const deleteCell = document.createElement('td');
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '刪除';
+    deleteBtn.style.background = '#ff6666';
+    deleteBtn.style.color = '#fff';
+    deleteBtn.style.border = 'none';
+    deleteBtn.style.padding = '5px 10px';
+    deleteBtn.style.borderRadius = '5px';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm('確定要刪除此留言嗎？')) {
+        await db.collection('messages').doc(data.id).delete();
+        row.remove(); // 從畫面移除這列
+        alert('留言已刪除');
+      }
+    });
+    deleteCell.appendChild(deleteBtn);
+    row.appendChild(deleteCell);
   });
 });
 </script>
