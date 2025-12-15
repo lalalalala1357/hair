@@ -98,8 +98,8 @@
     <label for="contact-name">姓名</label>
     <input type="text" id="contact-name" name="name" placeholder="請輸入您的姓名" required />
     
-    <label for="contact-email">電子郵件</label>
-    <input type="email" id="contact-email" name="email" placeholder="請輸入電子郵件" required />
+    <label for="contact-email">電話或電子郵件</label>
+    <input type="text" id="contact-info" name="contact" placeholder="請輸入電話或電子郵件" required />
     
     <label for="contact-message">留言內容</label>
     <textarea id="contact-message" name="message" rows="5" placeholder="請輸入留言" required></textarea>
@@ -124,13 +124,13 @@
 <script>
   // ---------------- Firebase 初始化 ----------------
   const firebaseConfig = {
-    apiKey: "AIzaSyAXbCW5UXRp085kJc9DjE5z2rbDJNFv47g",
-    authDomain: "hair-salon-56eb5.firebaseapp.com",
-    projectId: "hair-salon-56eb5",
-    storageBucket: "hair-salon-56eb5.firebasestorage.app",
-    messagingSenderId: "64472921085",
-    appId: "1:64472921085:web:78ba36b069597490625f94",
-    measurementId: "G-Z5224KYPR7"
+    apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
+    authDomain: "hsinformation.firebaseapp.com",
+    projectId: "hsinformation",
+    storageBucket: "hsinformation.firebasestorage.app",
+    messagingSenderId: "245515525647",
+    appId: "1:245515525647:web:00bf24514009bddd02cd7a",
+    measurementId: "G-DG6Z64PHF6"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
@@ -141,13 +141,26 @@
     e.preventDefault();
 
     const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
+    const contact = document.getElementById('contact-info').value.trim();
     const message = document.getElementById('contact-message').value;
+
+
+
+
+    const phonePattern = /^09\d{8}$/; // 台灣手機格式
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email格式
+
+    if (!phonePattern.test(contact) && !emailPattern.test(contact)) {
+      alert("請輸入有效的電話號碼或 Email！");
+      return;
+    }
+
+
 
     try {
       await db.collection('messages').add({
         name: name,
-        email: email,
+        contact: contact,
         message: message,
         createdAt: new Date()
       });
