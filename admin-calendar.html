@@ -223,6 +223,8 @@ let currentMonth = today.getMonth();
 let selectedDay = '';
 const weekDays = ['日','一','二','三','四','五','六'];
 
+const LINE_API_URL = "https://script.google.com/macros/library/d/1YAlK-NQd7zcY4IWlIOVQ514jK3UsIuMnG2FVqfUpCxLJ4u2CnsW7pXBf/2";
+
 checkAuthAndLoad();
 
 function checkAuthAndLoad() {
@@ -443,25 +445,61 @@ async function deleteAppointment(dayStr, index){
   loadAppointments(currentYear,currentMonth);
 }
 
+// ★★★ 【修改 2】整段複製並覆蓋原本的 addApptBtn 監聽器 ★★★
+
 document.getElementById('addApptBtn').addEventListener('click', async ()=>{
+  // 1. 取得輸入資料
   const name = document.getElementById('newName').value.trim();
   const phone = document.getElementById('newPhone').value.trim();
   const time = document.getElementById('newTime').value;
   const service = document.getElementById('newService').value;
   
-  if(!name||!phone){ alert('請填寫完整'); return; }
+  // 2. 檢查必填
+  if(!name || !phone){ alert('請填寫完整'); return; }
   
+  // 3. 鎖定按鈕避免重複按
   const btn = document.getElementById('addApptBtn');
-  btn.disabled = true; btn.textContent = "...";
+  btn.disabled = true; 
+  btn.textContent = "處理中...";
+
   try {
+      // 4. 存入 Firebase (維持原本功能)
       await db.collection('appointments').add({
-        memberId: phone, memberName: name, service, date: selectedDay, time,
-        status:'已預約', createdAt: new Date()
+        memberId: phone, 
+        memberName: name, 
+        service: service, 
+        date: selectedDay, 
+        time: time,
+        status: '已預約', 
+        createdAt: new Date()
       });
+
+      // 5. 發送 LINE 通知 (這是新增的功能！)
+      // 組合訊息內容
+      const msg = `【新預約通知】\n📅 日期: ${selectedDay}\n⏰ 時間: ${time}\n👤 客戶: ${name}\n📞 電話: ${phone}\n💇 項目: ${service}`;
+      
+      // 發送給 Google Apps Script
+      // mode: 'no-cors' 很重要，它允許瀏覽器發送請求而不報錯
+      fetch(LINE_API_URL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: JSON.stringify({ message: msg }),
+        headers: { 'Content-Type': 'application/json' }
+      }).catch(err => console.error('LINE 發送失敗', err));
+
+      // 6. 成功後的 UI 更新
       closeModal();
-      loadAppointments(currentYear,currentMonth);
-  } catch(e) { alert("錯誤"); } 
-  finally { btn.disabled = false; btn.textContent = "確認新增"; }
+      loadAppointments(currentYear, currentMonth);
+      alert('預約成功！LINE 通知已發送');
+
+  } catch(e) { 
+      console.error(e);
+      alert("錯誤: " + e.message); 
+  } finally { 
+      // 解鎖按鈕
+      btn.disabled = false; 
+      btn.textContent = "確認新增"; 
+  }
 });
 
 function populateTimeSelect(){
