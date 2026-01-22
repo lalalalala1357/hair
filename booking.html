@@ -191,6 +191,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
+  const LINE_API_URL = "https://script.google.com/macros/s/AKfycbzS0CAd3OX2iNJ3kqt8kx3bvCYe7-MPSdeXPtkXA-mjrR6lUJELJX3A0EH-KDRkJoPKaQ/exec";
   // ---------------- Firebase 初始化 (維持不變) ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
@@ -270,6 +271,7 @@
   });
 
   // 送出預約 (維持不變)
+  // --- 請用這整段覆蓋原本的 bookingForm 監聽器 ---
   bookingForm.addEventListener('submit', async e => {
     e.preventDefault();
 
@@ -278,31 +280,61 @@
     const time = document.getElementById('time').value;
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
+    
+    // 鎖定按鈕，避免重複按
+    const submitBtn = bookingForm.querySelector('button');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "處理中...";
 
-    const snapshot = await db.collection('appointments')
-      .where('date', '==', date)
-      .where('time', '==', time)
-      .get();
+    try {
+        // 1. 再次檢查是否被預約 (雙重確認)
+        const snapshot = await db.collection('appointments')
+          .where('date', '==', date)
+          .where('time', '==', time)
+          .get();
 
-    if (!snapshot.empty) {
-      alert("❌ 此時間已被預約，請選擇其他時段");
-      return;
+        if (!snapshot.empty) {
+          alert("❌ 此時間剛剛已被搶走，請選擇其他時段");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "送出預約";
+          return;
+        }
+
+        // 2. 存入 Firebase
+        await db.collection('appointments').add({
+          memberName: name,
+          memberId: phone,
+          service: service,
+          date: date,
+          time: time,
+          status: '已預約',
+          note: '',
+          createdAt: new Date()
+        });
+
+        // 3. 發送 LINE 通知給老闆 (新增的功能！)
+        const msg = `【新預約通知】\n📅 日期: ${date}\n⏰ 時間: ${time}\n👤 客戶: ${name}\n📞 電話: ${phone}\n💇 項目: ${service}`;
+        
+        fetch(LINE_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify({ message: msg }),
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(err => console.error('LINE 通知失敗', err));
+
+        // 4. 成功提示
+        alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
+        bookingForm.reset();
+        timeSelect.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
+
+    } catch (error) {
+        console.error(error);
+        alert("發生錯誤，請稍後再試");
+    } finally {
+        // 解鎖按鈕
+        submitBtn.disabled = false;
+        submitBtn.textContent = "送出預約";
     }
-
-    await db.collection('appointments').add({
-      memberName: name,
-      memberId: phone,
-      service: service,
-      date: date,
-      time: time,
-      status: '已預約',
-      note: '',
-      createdAt: new Date()
-    });
-
-    alert('✅ 預約送出成功！我們會盡快與您聯絡確認。');
-    bookingForm.reset();
-    timeSelect.innerHTML = '<option value="" disabled selected>請選擇時間</option>';
   });
 </script>
 
