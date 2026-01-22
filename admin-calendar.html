@@ -2,213 +2,180 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>行事曆管理 - 可莉兒 Hair Salon</title>
 <style>
 :root{
   --bg:#f7fff7;
   --card:#ffffff;
-  --accent:#a8e6cf; /* 莫蘭迪綠 */
-  --accent-dark: #7bd8a2;
+  --accent:#a8e6cf;
   --muted:#666;
-  --today-bg: #fffbf0; /* 暖黃色強調今日 */
-  --danger: #ff5c5c;
-  --success: #5cb85c;
-  --link: #3399ff;
+  --btn:#ccc;
+  --today-bg: #fffbf0; /* 今日高亮顏色 */
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body{
-  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background:var(--bg);
-  margin:0; padding:0; color:#333;
-  padding-bottom: 20px;
-}
+body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0;color:#333}
 
-/* --- Header & Nav --- */
-header{
-  background:var(--accent);
-  padding:15px;
-  position: sticky; top: 0; z-index: 50; /* 固定在頂部 */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-header h1{ margin:0 0 10px 0; color:#4a7c53; font-size:1.2rem; font-weight:800; }
+/* =========================================
+   1. 導航列 (維持原本樣式)
+   ========================================= */
+header{background:#a8e6cf;padding:15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
 
 nav {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 5px; /* 預留捲動條空間 */
 }
+
 nav ul{
-  list-style:none; display:flex; gap:10px; margin:0; padding:0;
+  list-style:none;
+  display:flex;gap:12px;
+  margin:0;
+  padding:0;
+  white-space:nowrap;
 }
 nav a{
-  text-decoration:none; color:#444; font-weight:600; font-size: 0.9rem;
-  padding:8px 16px; border-radius:20px; background: rgba(255,255,255,0.4);
-  white-space:nowrap; transition: all 0.2s;
+  text-decoration:none;
+  color:#333;
+  font-weight:bold;
+  padding:6px 12px;
+  border-radius:4px;
+  flex-shrink: 0;
 }
-nav a.active, nav a:hover{ background:#fff; color:#2e5c38; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+nav a:hover, nav a.active{background:#7bd8a2;color:#fff;}
 
-/* --- 控制列 --- */
-#controls { 
-  display: flex; justify-content: center; align-items: center; gap: 10px;
-  margin: 15px 0; padding: 0 10px;
-}
-#monthLabel { font-size: 1.1rem; font-weight: 800; min-width: 120px; text-align: center; color: #2e5c38; }
-.ctrl-btn {
-  background: var(--accent-dark); color: white; border: none;
-  padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
-  font-size: 0.9rem;
-}
-.ctrl-btn:active { transform: scale(0.95); }
-
-/* --- RWD 行事曆網格 --- */
+/* =========================================
+   2. 行事曆 (回復到中間彈窗版本)
+   ========================================= */
+#controls { text-align:center; margin:20px 0; }
 #calendar { 
   display:grid; 
   grid-template-columns:repeat(7,1fr); 
-  gap:3px; 
-  max-width:800px; 
+  gap:2px; 
+  max-width:700px; 
   margin:0 auto; 
   padding: 0 5px;
 }
-.week-cell { 
-  text-align:center; padding: 8px 0; 
-  font-size: 0.85rem; color: #555; font-weight: bold;
+.week-cell, .calendar-cell { 
+  padding:10px; 
+  border:1px solid #ccc; 
+  text-align:center; 
+  border-radius: 4px;
 }
-
+.week-cell { background:#e0f2e9; font-weight:bold; }
 .calendar-cell { 
   background:#fff; 
-  border-radius: 6px;
-  min-height: 85px; /* 電腦版高度 */
-  display: flex; flex-direction: column; align-items: center;
-  border: 1px solid #eee;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.1s;
+  cursor:pointer; 
+  position:relative; 
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.calendar-cell:active { background: #f0f0f0; }
+.calendar-cell.is-today {
+  background: var(--today-bg);
+  border: 2px solid #ffc107;
+}
+.calendar-cell:hover { background:#7bd8a2; color:#000; }
 
-/* 今日高亮 */
-.calendar-cell.is-today { 
-  background: var(--today-bg); border: 2px solid #ffc107; 
-}
-.date-num { 
-  font-weight: bold; font-size: 1rem; margin-top: 5px; margin-bottom: 2px;
-}
+.date-num { font-weight: bold; margin-bottom: 5px; }
 
-/* 標籤樣式 */
-.label-container { width: 100%; display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.label-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  align-items: center;
+}
 .label { 
-  font-size: 0.75rem; color: #fff; padding: 2px 6px; 
-  border-radius: 10px; width: 90%; text-align: center;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color:#fff; 
+  font-size:0.75rem; 
+  padding:2px 6px; 
+  border-radius:10px; 
+  width: 90%;
+  max-width: 60px;
 }
 
-/* --- 手機版調整 (Media Query) --- */
-@media (max-width: 768px) {
-  header h1 { font-size: 1.1rem; }
-  #controls { gap: 5px; }
-  #monthLabel { font-size: 1rem; min-width: auto; }
-  
-  /* 手機版格子縮小 */
-  .calendar-cell { min-height: 65px; } 
-  .date-num { font-size: 0.9rem; }
-  
-  /* 手機版標籤簡化 */
-  .label { 
-    font-size: 10px; padding: 1px 0; width: 90%; 
-    height: 16px; line-height: 16px;
-  }
+button { 
+  margin:5px 5px 0 0; 
+  padding:6px 12px; 
+  background:#7bd8a2; 
+  border:none; 
+  color:#fff; 
+  border-radius:4px; 
+  cursor:pointer; 
 }
+button:hover { background:#5bb174; }
 
-/* --- Modal (彈窗) & Bottom Sheet --- */
-#modalOverlay {
-  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.5); z-index:99;
-  backdrop-filter: blur(3px);
-  animation: fadeIn 0.2s ease;
-}
-
+/* =========================================
+   3. Modal (回復到中間視窗)
+   ========================================= */
 #appointmentModal {
   display:none; 
   position:fixed; 
+  top:50%; left:50%; 
+  transform:translate(-50%,-50%);
   background:#fff; 
+  border:1px solid #ccc; 
+  padding:20px; 
+  border-radius:8px; 
+  width: 90%;
+  max-width:420px; 
   z-index:100; 
-  box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
-  display: flex; flex-direction: column;
+  max-height:85vh; 
+  overflow-y:auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
-
-/* 預設電腦版 Modal */
-@media (min-width: 769px) {
-  #appointmentModal {
-    top:50%; left:50%; transform:translate(-50%,-50%);
-    width: 450px; max-height: 85vh;
-    border-radius: 12px;
-    padding: 20px;
-    overflow-y: auto;
-  }
-}
-
-/* 手機版 Bottom Sheet (關鍵) */
-@media (max-width: 768px) {
-  #appointmentModal {
-    top: auto; bottom: 0; left: 0; right: 0; /* 貼底 */
-    width: 100%; height: 85vh; /* 佔據 85% 高度 */
-    border-radius: 20px 20px 0 0; /* 上方圓角 */
-    padding: 20px;
-    transform: translateY(100%); /* 預設藏在下面 */
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    display: flex !important; /* 強制顯示但透過 transform 控制 */
-  }
-  #appointmentModal.show { transform: translateY(0); } /* 滑上來 */
-  #appointmentModal.hidden { transform: translateY(100%); display: none; } /* 完全隱藏 */
-}
-
-/* Modal 內容美化 */
-.modal-header { 
-  display:flex; justify-content:space-between; align-items:center; 
-  border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px;
-}
-.modal-header h3 { margin:0; font-size: 1.2rem; color: #2e5c38; }
-.close-btn { 
-  background:none; border:none; font-size:1.5rem; color:#999; cursor:pointer; padding:0 5px;
-}
-
-/* 預約列表卡片化 */
+#appointmentModal h3 { margin-top:0; border-bottom: 2px solid #a8e6cf; padding-bottom: 10px;}
 .apptRow { 
-  background: #f9f9f9; border-radius: 8px; padding: 12px; 
-  margin-bottom: 10px; border-left: 4px solid #ddd;
+  border-bottom:1px solid #eee; 
+  padding:10px 0; 
+  display:flex; 
+  flex-direction:column; 
+  gap:6px; 
 }
-.apptRow.status-done { border-left-color: var(--success); background: #f0fff4; }
-.apptRow.status-cancel { border-left-color: var(--danger); opacity: 0.7; }
+.apptInfo { font-size: 1rem; }
+.apptStatus { font-size: 0.85rem; color: #666; }
+.apptBtnGroup { display:flex; gap:8px; margin-top:5px; }
+.apptRow button { padding:6px 12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size: 0.85rem; }
+.apptDone { background:#5cb85c; color:#fff; }
+.apptCancel { background:#ff5c5c; color:#fff; }
+.apptDelete { background:#e2e2e2; color:#333; }
 
-.apptInfo { font-size: 1rem; margin-bottom: 5px; display:flex; justify-content: space-between;}
-.apptDetail { font-size: 0.9rem; color: #555; margin-bottom: 8px; }
-
-.apptBtnGroup { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
-.apptBtnGroup button {
-  padding:8px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size: 0.85rem;
+#modalOverlay {
+  display:none; position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.4);
+  z-index:99;
 }
-.btn-done { background: var(--success); color:#fff; }
-.btn-cancel { background: var(--danger); color:#fff; }
-.btn-del { background: #e2e2e2; color:#333; }
 
-/* 新增表單優化 */
+/* 新增預約表單 */
 #newApptForm {
-  background: #fff; padding-top: 15px; border-top: 1px solid #eee; margin-top: auto;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top:15px;
+  display: flex;
+  flex-direction: column;
+  gap:12px;
+  border: 1px solid #eee;
 }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.form-full { grid-column: span 2; }
-input, select { 
-  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; 
-  background: #fff; font-size: 1rem; /* 防止 iOS 自動放大 */
+#newApptForm label {
+  display: flex; flex-direction: column;
+  font-weight: bold; font-size: 0.9rem; color: #333;
 }
-.btn-submit { 
-  width:100%; background: var(--link); color:#fff; padding: 12px; 
-  border:none; border-radius: 8px; font-weight:bold; font-size: 1rem; margin-top: 10px;
+#newApptForm input, #newApptForm select {
+  padding: 8px; margin-top: 4px;
+  border: 1px solid #ccc; border-radius: 4px;
 }
+#addApptBtn { background: #3399ff; color: #fff; }
+#addApptBtn:hover { background: #287acc; }
 
-/* 動畫 */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* RWD 簡單調整 (只縮小字體，不改變結構) */
+@media (max-width: 600px) {
+    .calendar-cell { min-height: 60px; }
+    .label { font-size: 10px; padding: 1px 2px; }
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -216,60 +183,56 @@ input, select {
 <body>
 
 <header>
-  <h1>可莉兒 Hair Salon</h1>
+  <h1>可莉兒 Hair Salon - 管理後台</h1>
   <nav>
     <ul>
-      <li><a href="admin-calendar.html" class="active">📅 行事曆</a></li>
-      <li><a href="vip_test.html">👑 VIP</a></li>
-      <li><a href="admin-news.html">📢 公告</a></li>
-      <li><a href="message.html">💬 留言</a></li>
+      <li><a href="admin-calendar.html" class="active">行事曆管理</a></li>
+      <li><a href="vip_test.html">VIP管理</a></li>
+      <li><a href="admin-news.html">公告管理</a></li>
+      <li><a href="message.html">留言管理</a></li>
     </ul>
   </nav>
 </header>
 
 <div id="controls">
-  <button id="prevMonth" class="ctrl-btn">◀ 上月</button>
-  <span id="monthLabel"></span>
-  <button id="nextMonth" class="ctrl-btn">下月 ▶</button>
-  <button id="refreshBtn" class="ctrl-btn" style="background:#3399ff;">↻</button>
+  <button id="prevMonth">&lt; 上個月</button>
+  <span id="monthLabel" style="font-weight:bold; margin:0 15px; font-size: 1.2rem;"></span>
+  <button id="nextMonth">下個月 &gt;</button>
+  <button id="refreshBtn" style="background-color: #3399ff;">↻ 刷新</button>
 </div>
 
 <div id="calendar"></div>
 
 <div id="modalOverlay"></div>
 
-<div id="appointmentModal" class="hidden">
-  <div class="modal-header">
-    <h3 id="modalDate">日期</h3>
-    <button class="close-btn" onclick="closeModal()">×</button>
-  </div>
-  
-  <div id="modalContent" style="flex:1; overflow-y:auto; padding-bottom:10px;">
-    </div>
+<div id="appointmentModal">
+  <h3 id="modalDate"></h3>
+  <div id="modalContent"></div>
 
   <div id="newApptForm">
-    <h4 style="margin:0 0 10px 0; color:#444;">➕ 新增預約</h4>
-    <div class="form-grid">
-      <div class="form-full"><input type="text" id="newName" placeholder="客戶姓名"></div>
-      <div class="form-full"><input type="tel" id="newPhone" placeholder="電話 (09xx...)"></div>
-      <div><select id="newTime"></select></div>
-      <div>
-        <select id="newService">
-          <option value="剪髮">剪髮</option>
-          <option value="洗髮">洗髮</option>
-          <option value="燙髮">燙髮</option>
-          <option value="染髮">染髮</option>
-          <option value="護髮">護髮</option>
-          <option value="頭皮護理">頭皮護理</option>
-        </select>
-      </div>
+    <h4 style="margin:0 0 10px 0;">➕ 新增預約</h4>
+    <label>姓名:<input type="text" id="newName" placeholder="客戶姓名"></label>
+    <label>電話:<input type="text" id="newPhone" placeholder="09xx..."></label>
+    <label>時間:<select id="newTime"></select></label>
+    <label>服務:
+      <select id="newService">
+        <option value="剪髮">剪髮</option>
+        <option value="洗髮">洗髮</option>
+        <option value="燙髮">燙髮</option>
+        <option value="染髮">染髮</option>
+        <option value="護髮">護髮</option>
+        <option value="頭皮護理">頭皮護理</option>
+      </select>
+    </label>
+    <div style="display:flex; gap:10px; margin-top:5px;">
+        <button id="addApptBtn" style="flex:1;">確認新增</button>
+        <button onclick="closeModal()" style="background:#ccc; color:#333; flex:1;">關閉</button>
     </div>
-    <button id="addApptBtn" class="btn-submit">確認新增</button>
   </div>
 </div>
 
 <script>
-// --- Firebase Config (保持不變) ---
+// --- Firebase 設定 ---
 const firebaseConfig = {
   apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
   authDomain: "hsinformation.firebaseapp.com",
@@ -278,7 +241,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- 變數 ---
+// --- 全域變數 ---
 let appointments = {};
 let today = new Date();
 let currentYear = today.getFullYear();
@@ -286,7 +249,7 @@ let currentMonth = today.getMonth();
 let selectedDay = '';
 const weekDays = ['日','一','二','三','四','五','六'];
 
-// --- 初始化 ---
+// --- 初始化檢查 ---
 checkAuthAndLoad();
 
 function checkAuthAndLoad() {
@@ -297,13 +260,14 @@ function checkAuthAndLoad() {
             loadAppointments(currentYear, currentMonth);
         } else {
             alert('密碼錯誤！');
-            document.body.innerHTML='<h2 style="text-align:center;margin-top:100px;color:red;">🔒 存取被拒</h2>';
+            document.body.innerHTML='<h2 style="text-align:center;margin-top:100px;color:red;">密碼錯誤，拒絕存取。</h2>';
         }
     } else {
         loadAppointments(currentYear, currentMonth);
     }
 }
 
+// --- 資料讀取 ---
 async function loadAppointments(year, month){
   document.getElementById('monthLabel').textContent = "讀取中...";
   const start = `${year}-${String(month+1).padStart(2,'0')}-01`;
@@ -320,11 +284,11 @@ async function loadAppointments(year, month){
     });
     buildCalendar(year, month);
   } catch (error) {
-    console.error(error);
-    alert("讀取失敗，請檢查網路");
+    alert("資料讀取失敗");
   }
 }
 
+// --- 建構日曆 ---
 function buildCalendar(year, month){
   const calendar = document.getElementById('calendar');
   calendar.innerHTML='';
@@ -346,8 +310,7 @@ function buildCalendar(year, month){
   for(let i=0; i<startWeek; i++){
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
-    cell.style.background='#fcfcfc';
-    cell.style.border='none'; // 讓空白格不明顯
+    cell.style.background='#f9f9f9';
     calendar.appendChild(cell);
   }
 
@@ -355,6 +318,7 @@ function buildCalendar(year, month){
     const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
+    
     if(dayStr === todayStr) cell.classList.add('is-today');
 
     const dateNum = document.createElement('div');
@@ -391,63 +355,68 @@ function buildCalendar(year, month){
   }
 }
 
-// --- 互動邏輯 (Modal/Bottom Sheet) ---
+// --- 預約管理 Modal ---
 function manageDay(dayStr){
   selectedDay = dayStr;
   let dayAppointments = appointments[dayStr] || [];
+  
+  // 保持：時間排序
   dayAppointments.sort((a, b) => a.time.localeCompare(b.time));
 
   const modal = document.getElementById('appointmentModal');
   const overlay = document.getElementById('modalOverlay');
   const content = document.getElementById('modalContent');
-  const modalDate = document.getElementById('modalDate');
   const dateObj = new Date(dayStr);
+  const dayOfWeek = weekDays[dateObj.getDay()];
   
-  modalDate.textContent = `📅 ${dayStr} (${weekDays[dateObj.getDay()]})`;
+  document.getElementById('modalDate').textContent = `📅 ${dayStr} (${dayOfWeek})`;
   content.innerHTML='';
 
-  if(dayAppointments.length === 0) {
-      content.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">📭 尚無預約</div>';
-  }
+  if(dayAppointments.length === 0) content.innerHTML = '<p style="text-align:center;color:#888;">尚無預約資料</p>';
 
   dayAppointments.forEach((a,i)=>{
     const row = document.createElement('div');
     row.classList.add('apptRow');
-    if(a.status==='已完成') row.classList.add('status-done');
-    if(a.status==='已取消') row.classList.add('status-cancel');
+    
+    let statusColor = '#333';
+    if(a.status === '已完成') statusColor = 'green';
+    if(a.status === '已取消') statusColor = 'red';
 
     row.innerHTML = `
       <div class="apptInfo">
-        <span><b>${a.time}</b> ${a.memberName}</span>
-        <span style="font-size:0.8rem;background:#eee;padding:2px 5px;border-radius:4px;">${a.status}</span>
+        <strong>${a.time}</strong> - ${a.memberName} 
+        <span style="font-size:0.8rem; color:#666;">(${a.memberId})</span>
       </div>
-      <div class="apptDetail">項目: ${a.service} | 電話: ${a.memberId}</div>
+      <div class="apptStatus">
+         項目: <b>${a.service}</b> | 狀態: <span style="color:${statusColor};font-weight:bold;">${a.status}</span>
+      </div>
     `;
 
     const btnGroup = document.createElement('div');
     btnGroup.classList.add('apptBtnGroup');
 
-    if(a.status !== '已完成' && a.status !== '已取消') {
+    if(a.status !== '已完成') {
         const btnDone = document.createElement('button');
         btnDone.textContent='✅ 完成';
-        btnDone.className = 'btn-done';
+        btnDone.classList.add('apptDone');
         btnDone.onclick = ()=>updateAppointmentStatus(a.id,'已完成');
         btnGroup.appendChild(btnDone);
+    }
 
+    if(a.status !== '已取消') {
         const btnCancel = document.createElement('button');
         btnCancel.textContent='🚫 取消';
-        btnCancel.className = 'btn-cancel';
+        btnCancel.classList.add('apptCancel');
         btnCancel.onclick = ()=>updateAppointmentStatus(a.id,'已取消');
         btnGroup.appendChild(btnCancel);
     }
-    
-    // 即使完成或取消，仍保留刪除按鈕
-    const btnDelete = document.createElement('button');
-    btnDelete.textContent='🗑 刪除';
-    btnDelete.className = 'btn-del';
-    btnDelete.onclick = ()=>deleteAppointment(dayStr, i);
-    btnGroup.appendChild(btnDelete);
 
+    const btnDelete = document.createElement('button');
+    btnDelete.textContent='🗑️ 刪除';
+    btnDelete.classList.add('apptDelete');
+    btnDelete.onclick = ()=>deleteAppointment(dayStr, i);
+
+    btnGroup.appendChild(btnDelete);
     row.appendChild(btnGroup);
     content.appendChild(row);
   });
@@ -455,33 +424,12 @@ function manageDay(dayStr){
   populateTimeSelect();
   document.getElementById('newName').value='';
   document.getElementById('newPhone').value='';
+  document.getElementById('newService').selectedIndex=0;
   
-  // 顯示 Modal (處理動畫)
   overlay.style.display='block';
-  modal.style.display='flex'; 
-  // 小延遲讓 CSS transition 生效
-  setTimeout(()=> {
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
-  }, 10);
+  modal.style.display='block';
 }
 
-function closeModal(){
-  const modal = document.getElementById('appointmentModal');
-  const overlay = document.getElementById('modalOverlay');
-  
-  // 收起動畫
-  modal.classList.remove('show');
-  modal.classList.add('hidden'); // 移到下方
-  
-  setTimeout(()=>{
-      overlay.style.display='none';
-      // 注意：手機版不隱藏 display，只用 transform；但為了兼容電腦版，這裡可以保留 display 邏輯
-      if(window.innerWidth > 768) modal.style.display='none'; 
-  }, 300); // 等待動畫結束
-}
-
-// --- CRUD 邏輯 (保持與之前相同) ---
 async function updateAppointmentStatus(apptId, newStatus){
   await db.collection('appointments').doc(apptId).update({ status: newStatus });
   closeModal();
@@ -489,7 +437,7 @@ async function updateAppointmentStatus(apptId, newStatus){
 }
 
 async function deleteAppointment(dayStr, index){
-  if(!confirm("確定要永久刪除？")) return;
+  if(!confirm("確定要永久刪除這筆預約嗎？")) return;
   const appt = appointments[dayStr][index];
   await db.collection('appointments').doc(appt.id).delete();
   closeModal();
@@ -502,21 +450,30 @@ document.getElementById('addApptBtn').addEventListener('click', async ()=>{
   const time = document.getElementById('newTime').value;
   const service = document.getElementById('newService').value;
   
-  if(!name||!phone){ alert('請填寫姓名與電話'); return; }
+  if(!name||!phone||!time||!service){ alert('請填寫完整資訊'); return; }
 
+  const dayStr = selectedDay;
   const btn = document.getElementById('addApptBtn');
   btn.disabled = true; btn.textContent = "處理中...";
 
   try {
       await db.collection('appointments').add({
-        memberId: phone, memberName: name, service, date: selectedDay, time,
-        status:'已預約', createdAt: new Date()
+        memberId: phone, memberName: name, service, date: dayStr, time,
+        status:'已預約', note:'', createdAt: new Date()
       });
       closeModal();
       loadAppointments(currentYear,currentMonth);
-  } catch(e) { alert("錯誤: "+e.message); } 
-  finally { btn.disabled = false; btn.textContent = "確認新增"; }
+  } catch(e) {
+      alert("新增失敗");
+  } finally {
+      btn.disabled = false; btn.textContent = "確認新增";
+  }
 });
+
+function closeModal(){
+  document.getElementById('appointmentModal').style.display='none';
+  document.getElementById('modalOverlay').style.display='none';
+}
 
 function populateTimeSelect(){
   const select = document.getElementById('newTime');
@@ -541,5 +498,6 @@ document.getElementById('refreshBtn').addEventListener('click', ()=>{
   loadAppointments(currentYear,currentMonth);
 });
 </script>
+
 </body>
 </html>
