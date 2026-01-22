@@ -366,13 +366,29 @@ function manageDay(dayStr){
     const row = document.createElement('div');
     row.classList.add('apptRow');
     
+    // ↓↓↓↓↓↓ 替換開始 ↓↓↓↓↓↓
     row.innerHTML = `
       <div class="apptInfo">
-        <b>${a.time}</b> ${a.memberName} 
-        <span style="color:#666;font-size:0.9rem;">(${a.service})</span>
-        <div style="font-size:0.85rem;color:#888;margin-top:2px;">${a.status}</div>
+        <b>${a.time}</b> 
+        
+        <span style="font-size:1.05rem; font-weight:bold; margin-left: 5px;">
+          ${a.memberName}
+        </span>
+        
+        <span style="color:#666; font-size:0.95rem; margin-left: 8px;">
+          ${a.memberId}
+        </span>
+        
+        <span style="color:#666; font-size:0.9rem; margin-left: 5px;">
+          (${a.service})
+        </span>
+
+        <div style="font-size:0.85rem; color:#888; margin-top:4px;">
+          狀態: ${a.status}
+        </div>
       </div>
     `;
+    // ↑↑↑↑↑↑ 替換結束 ↑↑↑↑↑↑
 
     const btnGroup = document.createElement('div');
     btnGroup.classList.add('apptBtnGroup');
