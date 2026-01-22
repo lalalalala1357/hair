@@ -5,44 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>公告管理 - 可莉兒 Hair Salon</title>
 <style>
+/* --- 請複製這段 CSS 取代舊的導航列樣式 --- */
+
 :root{
   --bg:#f7fff7;
-  --card:#ffffff;
-  --accent:#a8e6cf;
-  --muted:#666;
-  --btn:#ccc;
+  --accent:#a8e6cf; /* 這是導航列背景色 */
 }
-body{font-family:Arial, Helvetica, sans-serif;background:var(--bg);margin:0;padding:0;color:#333}
 
-header{background:#a8e6cf;padding:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
-header h1{margin:0;color:#4a7c53;font-weight:bold;font-size:18px;}
+body {
+  margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+}
+
+/* 1. 導航列設定 */
+header{
+  background:#a8e6cf;
+  padding:10px; /* 您設定的高度 */
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1{ margin:0; color:#4a7c53; font-weight:bold; font-size:18px; }
 
 nav {
-  overflow-x: auto;           /* 超出寬度時可水平滑動 */
-  overflow-y: hidden;         /* 禁止上下滾動 */
-  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;       /* 手機版佔滿 */
+  margin-top: 10px;  /* 手機版間距 */
 }
 
-nav ul {
-  list-style:none;
-  display:flex;
-  gap:12px;
-  margin:0;
-  padding:0;
-  white-space:nowrap;
+/* 電腦版調整 */
+@media (min-width: 768px) {
+  nav { width: auto; margin-top: 0; }
 }
-nav a
-{ text-decoration:none;
-  color:#333;
-  font-weight:bold;
-  padding:6px 12px;
-  border-radius:4px;
-  flex-shrink: 0;            /* 防止自動壓縮 */
+
+nav ul{
+  list-style:none; display:flex; gap:12px; margin:0; padding:0 5px; white-space:nowrap;
 }
-nav a:hover, nav a.active{
-  background:#7bd8a2;
-  color:#fff;
+nav a{
+  text-decoration:none; color:#333; font-weight:bold; 
+  padding:6px 12px; border-radius:4px; flex-shrink: 0;
 }
+nav a:hover, nav a.active{ background:#7bd8a2; color:#fff; }
 
 .container{max-width:900px;margin:20px auto;padding:0 20px;}
 h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
