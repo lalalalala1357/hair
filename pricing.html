@@ -92,6 +92,7 @@
       <li><a href="pricing.html" class="active">價目表</a></li>
       <li><a href="booking.html">預約</a></li>
       <li><a href="news.html">最新消息</a></li>
+
       <li><a href="contact.html">聯絡我們</a></li>
     </ul>
   </nav>
@@ -253,7 +254,7 @@ function calculateTotal(){
   document.querySelectorAll('#allServices input[type=checkbox]:checked').forEach(input=>{
     total+=parseInt(input.dataset.price)||0;
   });
-  document.getElementById('totalAmount').innerText='總額: '+total+' 元';
+  document.getElementById('totalAmount').innerHTML = '總額: ' + total + ' 元<br><br><span style="color: red;">(此價格僅供參考，實際以設計師現場報價為主)</span>';
 }
 </script>
 
