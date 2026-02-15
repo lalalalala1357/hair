@@ -169,6 +169,7 @@
       <li><a href="pricing.html">價目表</a></li>
       <li><a href="booking.html" class="active">預約</a></li>
       <li><a href="news.html">最新消息</a></li>
+
       <li><a href="contact.html">聯絡我們</a></li>
     </ul>
   </nav>
@@ -177,6 +178,20 @@
 <main>
   <h1>線上預約</h1>
   <form id="booking-form">
+
+    <div style="
+        background-color: #fff5f5; 
+        color: #c0392b; 
+        padding: 12px; 
+        border-radius: 6px; 
+        border: 1px solid #ffcccc; 
+        text-align: center; 
+        font-weight: bold; 
+        margin-bottom: 20px; 
+        font-size: 0.95rem;">
+        ⚠️ 溫馨提醒：為確保服務品質<br>請務必提前 3 天預約
+    </div>
+
     <label for="service">服務項目</label>
     <select id="service" name="service" required>
       <option value="" disabled selected>請選擇服務</option>
@@ -252,7 +267,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
   // 您的 GAS 網址 (維持不變)
-  const LINE_API_URL = "https://script.google.com/macros/s/AKfycbzS0CAd3OX2iNJ3kqt8kx3bvCYe7-MPSdeXPtkXA-mjrR6lUJELJX3A0EH-KDRkJoPKaQ/exec";
+  const LINE_API_URL = "https://script.google.com/macros/s/AKfycbybkCC_yZqT0BFjoKWmCP-bUoK47RANacxOurbSerctNUeSgpwx7Y4Hmk05-faucQ0BxQ/exec";
   
   const firebaseConfig = {
     apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
