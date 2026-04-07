@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>留言管理 - 可莉兒 Hair Salon-管理後台</title>
+
+<link rel="stylesheet" href="admin-style.css">
+
+<style>
+.table-wrapper {
+  overflow-x: auto;       /* 超出寬度時可水平滑動 */
+  -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+}
+
+table {
+  width:100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  background:var(--card);
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  border-radius:8px;
+  overflow:hidden;
+}
+th, td {
+  border-bottom:1px solid #ccc;
+  padding:8px 10px;
+  text-align:left;
+}
+th {
+  background:#7bd8a2;
+  color:#fff;
+}
+tr:nth-child(even) { background:#e6f7ed; }
+tr.replied { opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<div id="admin-navbar-placeholder"></div>
+
+<main>
+  <h1>留言管理</h1>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>聯絡方式</th>
+          <th>留言內容</th>
+          <th>送出時間</th>
+          <th>已查看</th>
+          <th>刪除</th>
+        </tr>
+      </thead>
+      <tbody id="messages-table">
+        </tbody>
+    </table>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="admin-navbar.js"></script>
+<script>
+
+const db = firebase.firestore();
+
+const tableBody = document.getElementById('messages-table');
+
+// 讀取留言
+db.collection('messages').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+  const messages = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    messages.push({id: doc.id, ...data, replied: data.replied || false});
+  });
+
+  // 先把未回覆排上方
+  messages.sort((a,b) => a.replied - b.replied);
+
+  tableBody.innerHTML = "";
+  messages.forEach(data => {
+    const row = document.createElement('tr');
+    if(data.replied) row.classList.add('replied');
+
+    // 姓名
+    const nameCell = document.createElement('td');
+    nameCell.textContent = data.name || '';
+    row.appendChild(nameCell);
+
+    // 電子郵件
+    const contactCell = document.createElement('td');
+    contactCell.textContent = data.contact || '';
+    row.appendChild(contactCell);
+
+    // 留言內容
+    const messageCell = document.createElement('td');
+    messageCell.textContent = data.message || '';
+    row.appendChild(messageCell);
+
+    // 送出時間
+    const timeCell = document.createElement('td');
+    const date = data.createdAt ? data.createdAt.toDate() : new Date();
+    timeCell.textContent = date.toLocaleString();
+    row.appendChild(timeCell);
+
+    // 已查看勾勾
+    const repliedCell = document.createElement('td');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = data.replied;
+    checkbox.addEventListener('change', async () => {
+      await db.collection('messages').doc(data.id).update({replied: checkbox.checked});
+    });
+    repliedCell.appendChild(checkbox);
+    row.appendChild(repliedCell);
+
+    // 刪除按鈕
+    const deleteCell = document.createElement('td');
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '刪除';
+    deleteBtn.style.background = '#ff6666';
+    deleteBtn.style.color = '#fff';
+    deleteBtn.style.border = 'none';
+    deleteBtn.style.padding = '5px 10px';
+    deleteBtn.style.borderRadius = '5px';
+    deleteBtn.style.cursor = 'pointer';
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm('確定要刪除此留言嗎？')) {
+        await db.collection('messages').doc(data.id).delete();
+        row.remove(); // 從畫面移除這列
+        alert('留言已刪除');
+      }
+    });
+    deleteCell.appendChild(deleteBtn);
+    row.appendChild(deleteCell);
+
+    tableBody.appendChild(row);
+  });
+});
+</script>
+</body>
+</html>
