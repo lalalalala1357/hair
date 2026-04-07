@@ -4,59 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>產品上架管理 - 可莉兒 Hair Salon</title>
+
+<link rel="stylesheet" href="admin-style.css">
+
 <style>
-/* --- 1. 完全同步留言管理範本的 CSS --- */
-:root{
-  --bg:#f7fff7;
-  --accent:#a8e6cf; 
-}
-
-body {
-  margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;
-  background: var(--bg);
-  padding-bottom: 50px;
-}
-
-header{
-  background:#a8e6cf;
-  padding:10px; /* 同步範本高度 */
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-}
-header h1{ margin:0; color:#4a7c53; font-weight:bold; font-size:18px; }
-
-nav {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;       
-  margin-top: 10px;  
-}
-
-@media (min-width: 768px) {
-  nav { width: auto; margin-top: 0; }
-}
-
-nav ul{
-  list-style:none; display:flex; gap:12px; margin:0; padding:0 5px; white-space:nowrap;
-}
-nav a{
-  text-decoration:none; color:#333; font-weight:bold; 
-  padding:6px 12px; border-radius:4px; flex-shrink: 0;
-}
-nav a:hover, nav a.active{ background:#7bd8a2; color:#fff; }
-
-/* --- 2. 產品頁面專用內容區塊 --- */
-main { max-width:600px; margin:40px auto; padding:0 20px; }
-h1.page-title { color:#4a7c53; text-align:center; margin-bottom:30px; font-size: 24px; }
-
+/* 產品頁面專用內容區塊 */
 .admin-card {
   background: #fff;
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.1); /* 同步範本陰影強度 */
+  box-shadow: 0 1px 5px rgba(0,0,0,0.1); 
 }
 
 label { display: block; margin-bottom: 8px; font-weight: bold; color: #4a7c53; }
@@ -77,15 +34,15 @@ input[type="text"], input[type="number"], textarea {
 }
 
 button.submit-btn {
-  background-color: #4a7c53; /* 同步範本的深綠色按鈕 */
+  background-color: #4a7c53; 
   border: none; color: white;
   padding: 14px; border-radius: 6px; font-size: 1.1rem; font-weight: bold;
   cursor: pointer; width: 100%; transition: background 0.3s;
 }
 button.submit-btn:hover { background-color: #3d6645; }
 
-/* --- 3. 下方產品清單管理 (含刪除按鈕) --- */
-.list-title { color: #4a7c53; margin: 50px 0 20px; text-align: center; }
+/* 下方產品清單管理 */
+.list-title { color: #4a7c53; margin: 50px 0 20px; } /* 已移除置中，隨大標題靠左 */
 
 .admin-product-item {
   background: white;
@@ -104,7 +61,7 @@ button.submit-btn:hover { background-color: #3d6645; }
 }
 
 .delete-btn {
-  background: #ff6666; /* 同步留言管理的刪除紅 */
+  background: #ff6666; 
   color: #fff; border: none; 
   padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
 }
@@ -113,17 +70,7 @@ button.submit-btn:hover { background-color: #3d6645; }
 </head>
 <body>
 
-<header>
-  <h1>可莉兒 Hair Salon - 管理後台</h1>
-  <nav>
-    <ul>
-      <li><a href="admin-calendar.html">行事曆管理</a></li>
-      <li><a href="admin-news.html">公告管理</a></li>
-      <li><a href="message.html">留言管理</a></li>
-      <li><a href="admin-product.html" class="active">產品上架</a></li>
-    </ul>
-  </nav>
-</header>
+<div id="admin-navbar-placeholder"></div>
 
 <main>
   <h1 class="page-title">產品上架管理</h1>
@@ -149,15 +96,17 @@ button.submit-btn:hover { background-color: #3d6645; }
 
   <h2 class="list-title">目前上架中的產品</h2>
   <div id="adminProductList">
-    <p style="text-align:center; color:#999;">載入中...</p>
+    <p style="text-align:left; color:#999;">載入中...</p>
   </div>
 </main>
 
+<script src="admin-navbar.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
-  // Firebase 配置
   const firebaseConfig = {
     apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
     authDomain: "hsinformation.firebaseapp.com",
@@ -168,7 +117,6 @@ button.submit-btn:hover { background-color: #3d6645; }
   }
   const db = firebase.firestore();
 
-  // 1. 圖片預覽
   document.getElementById('fileBtn').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -182,7 +130,6 @@ button.submit-btn:hover { background-color: #3d6645; }
     }
   });
 
-  // 2. 上架邏輯 (Base64)
   function processAndUpload() {
     const fileInput = document.getElementById('fileBtn');
     const name = document.getElementById('pName').value;
@@ -235,13 +182,12 @@ button.submit-btn:hover { background-color: #3d6645; }
     reader.readAsDataURL(fileInput.files[0]);
   }
 
-  // 3. 讀取與刪除功能
   function loadProducts() {
     const listContainer = document.getElementById('adminProductList');
     db.collection('products').orderBy('createdAt', 'desc').onSnapshot((querySnapshot) => {
       listContainer.innerHTML = '';
       if (querySnapshot.empty) {
-        listContainer.innerHTML = '<p style="text-align:center; color:#999;">目前沒有產品。</p>';
+        listContainer.innerHTML = '<p style="text-align:left; color:#999;">目前沒有產品。</p>';
         return;
       }
       querySnapshot.forEach((doc) => {
