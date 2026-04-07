@@ -4,114 +4,36 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>公告管理 - 可莉兒 Hair Salon</title>
+
+<link rel="stylesheet" href="admin-style.css">
+
 <style>
-/* --- 請複製這段 CSS 取代舊的導航列樣式 --- */
-
-:root{
-  --bg:#f7fff7;
-  --accent:#a8e6cf; /* 這是導航列背景色 */
-}
-
-body {
-  margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;
-  background: var(--bg);
-}
-
-/* 1. 導航列設定 */
-header{
-  background:#a8e6cf;
-  padding:10px; /* 您設定的高度 */
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap:wrap;
-}
-header h1{ margin:0; color:#4a7c53; font-weight:bold; font-size:18px; }
-
-nav {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;       /* 手機版佔滿 */
-  margin-top: 10px;  /* 手機版間距 */
-}
-
-/* 電腦版調整 */
-@media (min-width: 768px) {
-  nav { width: auto; margin-top: 0; }
-}
-
-nav ul{
-  list-style:none; display:flex; gap:12px; margin:0; padding:0 5px; white-space:nowrap;
-}
-nav a{
-  text-decoration:none; color:#333; font-weight:bold; 
-  padding:6px 12px; border-radius:4px; flex-shrink: 0;
-}
-nav a:hover, nav a.active{ background:#7bd8a2; color:#fff; }
-
-.container{max-width:900px;margin:20px auto;padding:0 20px;}
-h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
 .card{background:var(--card);border-radius:8px;padding:20px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,0.1);position:relative;}
 .card h3{margin:0 0 8px;color:#3a6f45;}
 .card time{display:block;font-size:0.85rem;color:#777;margin-bottom:10px;}
-
-.card p{
-  font-size:1rem;
-  line-height:1.6;
-  color:#444;
-  white-space: pre-wrap; /* ✅ 保留輸入的換行與空格 */
-}
-
-
-
-
-
-
+.card p{ font-size:1rem; line-height:1.6; color:#444; white-space: pre-wrap; }
 .card .actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;}
 .card .actions button{background:#7bd8a2;color:#fff;border:none;padding:4px 8px;cursor:pointer;border-radius:4px;}
 .card .actions button.delete{background:#ff7c7c;}
 
 #addForm, #bannerForm{background:#ffffff;padding:20px;border-radius:8px;margin-bottom:20px;box-shadow:0 1px 5px rgba(0,0,0,0.1);}
-#addForm input, #addForm textarea, #bannerForm input, #bannerForm textarea{width:100%;margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;}
+#addForm input, #addForm textarea, #bannerForm input, #bannerForm textarea{width:100%;margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #ddd;font-size:14px;box-sizing:border-box;}
 #addForm label, #bannerForm label{font-weight:bold;margin-bottom:4px;display:block;}
 #addForm button, #bannerForm button{background:#4a7c53;color:#fff;border:none;padding:10px 16px;cursor:pointer;border-radius:6px;}
 
 .toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;padding:10px 14px;border-radius:8px}
 .hidden{display:none}
-
-/* 前端橫幅示範 */
-#bannerDisplay{background:#ffe08a;color:#333;padding:12px 16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
-#bannerDisplay button{background:#4a7c53;color:#fff;border:none;padding:4px 8px;cursor:pointer;border-radius:4px;}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>可莉兒 Hair Salon - 管理後台</h1>
-  <nav>
-    <ul>
-      <li><a href="admin-calendar.html">行事曆管理</a></li>
-      <li><a href="admin-news.html" class="active">公告管理</a></li>
-      <li><a href="message.html" class=>留言管理</a></li>
-      <li><a href="admin-product.html">產品上架</a></li>
-    </ul>
-  </nav>
-</header>
+<div id="admin-navbar-placeholder"></div>
 
 <div class="container">
+  <h1>公告管理</h1>
 
-  <!-- 密碼登入 -->
-  <div id="loginCard" class="card">
-    <h3>請輸入管理密碼</h3>
-    <input type="password" id="adminPassword" placeholder="管理密碼">
-    <button id="btnLogin">登入</button>
-  </div>
-
-  <!-- 主畫面 -->
-  <div id="mainUI" class="hidden">
-
-    <!-- 橫幅公告單獨編輯 -->
+  <div id="mainUI">
+    
     <div id="bannerForm" class="card">
       <h3>橫幅公告</h3>
       <label>標題</label>
@@ -121,7 +43,6 @@ h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
       <button id="btnBannerSave">儲存橫幅</button>
     </div>
 
-    <!-- 新增一般公告表單 -->
     <div id="addForm">
       <h3>新增 / 編輯公告</h3>
       <label>標題</label>
@@ -132,41 +53,28 @@ h1{color:#4a7c53;margin-bottom:20px;text-align:center;}
       <div style="margin-top:8px;">
         <button id="btnAdd">新增公告</button>
         <button id="btnUpdate" class="hidden">更新公告</button>
-        <button id="btnClear">清除表單</button>
+        <button id="btnClear" style="background:#888;">清除表單</button>
       </div>
     </div>
 
-    <!-- 公告列表 -->
     <div id="articles"></div>
-
   </div>
-
 </div>
 
 <div id="toast" class="toast hidden">已儲存</div>
 
-<!-- Firebase -->
+<script src="admin-navbar.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
   authDomain: "hsinformation.firebaseapp.com",
   projectId: "hsinformation",
-  storageBucket: "hsinformation.firebasestorage.app",
-  messagingSenderId: "245515525647",
-  appId: "1:245515525647:web:00bf24514009bddd02cd7a",
-  measurementId: "G-DG6Z64PHF6"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-</script>
-
-<script>
-const ADMIN_PASSWORD = "clear0921";
-const loginCard = document.getElementById('loginCard');
-const mainUI = document.getElementById('mainUI');
-const btnLogin = document.getElementById('btnLogin');
 
 const titleInput = document.getElementById('titleInput');
 const contentInput = document.getElementById('contentInput');
@@ -190,18 +98,9 @@ function showToast(msg='已儲存', time=2000){
   setTimeout(()=>toast.classList.add('hidden'), time);
 }
 
-// 登入檢查
-btnLogin.addEventListener('click', ()=>{
-  const val = document.getElementById('adminPassword').value;
-  if(val !== ADMIN_PASSWORD){
-    alert("密碼錯誤");
-    return;
-  }
-  loginCard.classList.add('hidden');
-  mainUI.classList.remove('hidden');
-  loadBanner();
-  loadAnnouncements();
-});
+// 🚀 頁面載入時，直接讀取資料 (不再需要點擊登入)
+loadBanner();
+loadAnnouncements();
 
 // ---------- 橫幅公告 ----------
 async function loadBanner(){
@@ -228,10 +127,7 @@ btnClear.addEventListener('click', ()=>{
 
 async function loadAnnouncements(){
   articlesDiv.innerHTML="";
-  const snapshot = await db.collection("announcements")
-
-    .orderBy("createdAt","desc")
-    .get();
+  const snapshot = await db.collection("announcements").orderBy("createdAt","desc").get();
   snapshot.forEach((doc)=>{
     const data = doc.data();
     const card = document.createElement('div');
@@ -248,19 +144,14 @@ async function loadAnnouncements(){
     articlesDiv.appendChild(card);
 
     card.querySelector('.edit').onclick = ()=>{
-      titleInput.value = data.title;
-      contentInput.value = data.content;
-      pinnedInput.checked = data.pinned || false;
-      editingDocId = doc.id;
-      btnUpdate.classList.remove('hidden');
-      btnAdd.classList.add('hidden');
+      titleInput.value = data.title; contentInput.value = data.content; pinnedInput.checked = data.pinned || false;
+      editingDocId = doc.id; btnUpdate.classList.remove('hidden'); btnAdd.classList.add('hidden');
     };
 
     card.querySelector('.delete').onclick = async ()=>{
       if(confirm("確定要刪除這則公告嗎？")){
         await db.collection("announcements").doc(doc.id).delete();
-        showToast("公告已刪除");
-        loadAnnouncements();
+        showToast("公告已刪除"); loadAnnouncements();
       }
     };
   });
@@ -268,33 +159,19 @@ async function loadAnnouncements(){
 
 // 新增公告
 btnAdd.addEventListener('click', async ()=>{
-  const title = titleInput.value.trim();
-  const content = contentInput.value.trim();
-  const pinned = pinnedInput.checked;
+  const title = titleInput.value.trim(); const content = contentInput.value.trim(); const pinned = pinnedInput.checked;
   if(!title || !content){ alert("請輸入標題與內容"); return; }
-
-  await db.collection("announcements").add({
-    title, content, pinned, createdAt: firebase.firestore.Timestamp.now()
-  });
-  showToast("公告已新增");
-  btnClear.click();
-  loadAnnouncements();
+  await db.collection("announcements").add({ title, content, pinned, createdAt: firebase.firestore.Timestamp.now() });
+  showToast("公告已新增"); btnClear.click(); loadAnnouncements();
 });
 
 // 更新公告
 btnUpdate.addEventListener('click', async ()=>{
   if(!editingDocId) return;
-  const title = titleInput.value.trim();
-  const content = contentInput.value.trim();
-  const pinned = pinnedInput.checked;
+  const title = titleInput.value.trim(); const content = contentInput.value.trim(); const pinned = pinnedInput.checked;
   if(!title || !content){ alert("請輸入標題與內容"); return; }
-
-  await db.collection("announcements").doc(editingDocId).update({
-    title, content, pinned
-  });
-  showToast("公告已更新");
-  btnClear.click();
-  loadAnnouncements();
+  await db.collection("announcements").doc(editingDocId).update({ title, content, pinned });
+  showToast("公告已更新"); btnClear.click(); loadAnnouncements();
 });
 </script>
 </body>
