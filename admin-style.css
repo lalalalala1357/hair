@@ -1,0 +1,55 @@
+:root {
+  --bg: #f7fff7;
+  --card: #ffffff;
+  --accent: #a8e6cf;
+  --btn: #ccc;
+  --today-bg: #fffbf0;
+}
+
+body {
+  margin: 0; 
+  padding: 0; 
+  padding-bottom: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: #333;
+}
+
+/* 後台導航列樣式 */
+header {
+  background: var(--accent);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+header h1 { margin: 0; color: #4a7c53; font-weight: bold; font-size: 18px; }
+
+nav {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  margin-top: 10px;
+}
+@media (min-width: 768px) {
+  nav { width: auto; margin-top: 0; }
+}
+
+nav ul {
+  list-style: none; display: flex; gap: 12px; margin: 0; padding: 0 5px; white-space: nowrap;
+}
+nav a {
+  text-decoration: none; color: #333; font-weight: bold; 
+  padding: 6px 12px; border-radius: 4px; flex-shrink: 0; display: inline-block;
+}
+nav a:hover, nav a.active { background: #7bd8a2; color: #fff; }
+
+/* 共同的主內容與大標題設定 */
+main, .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+h1.page-title, main > h1, .container > h1 {
+  color: #4a7c53; 
+  margin-bottom: 30px; 
+  /* 預設靠左對齊，不再置中 */
+}
