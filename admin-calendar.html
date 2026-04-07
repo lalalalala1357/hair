@@ -112,14 +112,6 @@ button.ctrl-btn:hover { background:#5bb174; }
 
 <script src="admin-navbar.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCfxDOOzTLbmQRfvW275hJrtOnX_t-6-yc",
-  authDomain: "hsinformation.firebaseapp.com",
-  projectId: "hsinformation"
-};
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
 const db = firebase.firestore();
 
 let appointments = {};
